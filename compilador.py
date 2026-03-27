@@ -643,7 +643,7 @@ int ehPar(int x) {
     return resto;
 }
 
-ç
+ç@
     Programa principal que imprime os fatoriais de 1 a 5.
     Usa comentários de bloco para documentação.
     int main() é a função de entrada.
