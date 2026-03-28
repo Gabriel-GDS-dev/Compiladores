@@ -1,1 +1,0 @@
-Executar compiladores.txt
