@@ -1,0 +1,35 @@
+ç# Programa de teste mais completo
+int soma(int a, int b) {
+    int resultado;
+    resultado = a + b;
+    return resultado;
+}
+
+int dobro(int x) {
+    int valor;
+    valor = x * 2;
+    return valor;
+}
+
+int main() {
+    int i;
+    int total;
+    int atual;
+    i = 1;
+    total = 0;
+
+    while (i <= 5) {
+        atual = dobro(i);
+        total = soma(total, atual);
+
+        if (total > 10) {
+            print(total);
+        } else {
+            print(i);
+        }
+
+        i = i + 1;
+    }
+
+    return total;
+}
