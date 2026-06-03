@@ -1,4 +1,8 @@
-ç# Programa de teste mais completo
+ç@ Exemplo 2: programa completo
+   Cobre funcoes, chamadas, if/else, while,
+   comentarios de linha e bloco @ç
+
+ç# Funcao que soma dois inteiros
 int soma(int a, int b) {
     int resultado;
     resultado = a + b;
