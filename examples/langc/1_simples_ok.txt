@@ -1,3 +1,6 @@
+ç@ Exemplo 1: programa simples
+   Demonstra variaveis, atribuicao, print e return @ç
+
 int main() {
     int x;
     x = 10;
