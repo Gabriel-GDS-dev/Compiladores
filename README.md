@@ -27,6 +27,7 @@ Compiladores/
 │   └── ll1/
 ├── outputs/
 │   ├── cache/
+│   ├── reports/
 │   └── tokens/
 ├── docs/
 │   ├── manuals/
@@ -42,6 +43,7 @@ Compiladores/
 - `examples/semantico/`: exemplos da atividade semantica com `const`.
 - `examples/ll1/`: exemplo de entrada da atividade sintatica LL(1).
 - `outputs/tokens/`: arquivos JSON gerados pelo analisador lexico.
+- `outputs/reports/`: relatorios HTML gerados pela atividade semantica.
 - `outputs/cache/`: caches gerados anteriormente pelo Python.
 - `docs/manuals/`: manual e especificacao da linguagem.
 - `docs/activities/`: PDFs das atividades.
@@ -64,8 +66,6 @@ As tabelas da E4 ficam em:
 docs/tabelas_e4.md
 ```
 
-O analisador tambem implementa a acao semantica de `const` descrita em `docs/activities/AcoesSemantico.pdf`: constantes globais entram na tabela de simbolos como categoria `constante` e nao podem receber nova atribuicao.
-
 Atividade sintatica LL(1):
 
 ```bash
@@ -77,6 +77,8 @@ Atividade semantica:
 ```bash
 python src/atividade_semantico.py examples/semantico/6_erro_semantico_const.txt
 ```
+
+O script segue `docs/activities/AcoesSemantico.pdf` passo a passo: carrega a tabela de simbolos com `Nome`, `Categoria`, `Tipo` e `Nivel`, insere `const` como `constante` no nivel global e mostra erro com linha quando uma constante recebe novo valor. A execucao tambem gera um relatorio HTML em `outputs/reports/`.
 
 Para validar um exemplo sem erro semantico:
 

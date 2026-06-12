@@ -3,23 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Relatorio LangC# - 6_erro_semantico_const.txt</title>
+  <title>Relatorio Semantico - examples\semantico\6_erro_semantico_const.txt</title>
   <style>
     :root {
-      --bg: #f4f6f8;
+      --bg: #f5f7f8;
       --surface: #ffffff;
-      --ink: #1d252c;
-      --muted: #64707d;
-      --line: #d9e0e7;
-      --green: #23745a;
-      --red: #b94134;
-      --blue: #285e91;
-      --amber: #a96b16;
-      --soft-green: #e5f4ee;
-      --soft-red: #fde9e5;
-      --soft-blue: #e7f0fa;
-      --soft-amber: #fff2d9;
-      --shadow: 0 18px 45px rgba(29, 37, 44, 0.10);
+      --ink: #18212a;
+      --muted: #64717f;
+      --line: #d9e1e8;
+      --accent: #176b87;
+      --ok: #227252;
+      --erro: #b23b32;
+      --soft-ok: #e5f4ed;
+      --soft-erro: #fde9e5;
+      --soft-info: #e8f2f6;
     }
 
     * { box-sizing: border-box; }
@@ -34,128 +31,78 @@
     }
 
     header {
-      background: #15251f;
-      color: #f8fbf8;
-      border-bottom: 6px solid var(--amber);
+      background: #18212a;
+      color: #f8fbfc;
+      border-bottom: 5px solid var(--accent);
     }
 
-    .header-inner {
-      width: min(1180px, calc(100% - 32px));
+    .wrap {
+      width: min(1160px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 34px 0 30px;
+    }
+
+    .hero {
+      padding: 30px 0 28px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 24px;
       align-items: end;
     }
 
-    h1, h2, h3, p { margin: 0; }
+    h1, h2, p { margin: 0; }
+    h1 { margin-top: 6px; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; letter-spacing: 0; }
+    h2 { font-size: 1.16rem; }
+    main { padding: 24px 0 44px; }
 
-    h1 {
-      margin-top: 8px;
-      font-size: clamp(2rem, 5vw, 4rem);
-      line-height: 1;
-      letter-spacing: 0;
-    }
-
-    h2 { font-size: 1.2rem; }
-
-    .eyebrow,
-    .section-label {
-      display: inline-flex;
-      color: var(--amber);
-      font-size: 0.76rem;
+    .eyebrow {
+      color: #9bd3df;
+      font-size: .78rem;
       font-weight: 800;
-      letter-spacing: 0;
       text-transform: uppercase;
     }
 
-    .file-name {
-      margin-top: 14px;
-      color: #cdd8d2;
-      font-family: Consolas, "Courier New", monospace;
-      overflow-wrap: anywhere;
-    }
+    .file { margin-top: 12px; color: #cbd9df; font-family: Consolas, "Courier New", monospace; overflow-wrap: anywhere; }
 
-    .status-badge {
-      min-width: 190px;
-      padding: 14px 18px;
+    .badge {
+      min-width: 180px;
+      padding: 14px 16px;
       border-radius: 8px;
-      font-weight: 800;
       text-align: center;
-      background: var(--soft-green);
-      color: var(--green);
+      font-weight: 800;
+      background: var(--soft-ok);
+      color: var(--ok);
     }
 
-    .status-badge.erro {
-      background: var(--soft-red);
-      color: var(--red);
-    }
+    .badge.erro { background: var(--soft-erro); color: var(--erro); }
 
-    main {
-      width: min(1180px, calc(100% - 32px));
-      margin: 28px auto 48px;
-    }
-
-    .summary {
+    .grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
       margin-bottom: 18px;
     }
 
-    .metric,
-    .panel {
+    .metric, .panel {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 16px 38px rgba(24, 33, 42, .08);
     }
 
-    .metric {
-      padding: 18px;
-      min-height: 96px;
-    }
+    .metric { padding: 16px; min-height: 88px; }
+    .metric span { display: block; color: var(--muted); font-size: .76rem; font-weight: 800; text-transform: uppercase; }
+    .metric strong { display: block; margin-top: 8px; font-size: 1.45rem; }
 
-    .metric span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .metric strong {
-      display: block;
-      margin-top: 8px;
-      font-size: 1.55rem;
-      line-height: 1.1;
-    }
+    .panel { padding: 18px; margin-bottom: 18px; overflow: hidden; }
+    .panel.alert { border-color: #e9b1aa; background: var(--soft-erro); }
+    .panel.info { background: var(--soft-info); }
+    .panel h2 { margin-bottom: 12px; }
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
       gap: 18px;
       align-items: start;
-    }
-
-    .panel {
-      padding: 20px;
-      margin-bottom: 18px;
-      overflow: hidden;
-    }
-
-    .panel.alert {
-      border-color: #efb6ad;
-      background: var(--soft-red);
-    }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 14px;
     }
 
     .code-box {
@@ -163,192 +110,85 @@
       color: #edf5f3;
       border-radius: 8px;
       overflow: auto;
-      max-height: 620px;
+      max-height: 560px;
       font-family: Consolas, "Courier New", monospace;
-      font-size: 0.92rem;
+      font-size: .92rem;
     }
 
     .code-line {
       display: grid;
-      grid-template-columns: 54px minmax(0, 1fr);
+      grid-template-columns: 52px minmax(0, 1fr);
       min-height: 26px;
     }
 
-    .line-number {
+    .code-line span {
       padding: 3px 12px;
-      color: #8da19a;
+      color: #8fa29b;
       text-align: right;
-      border-right: 1px solid rgba(255,255,255,0.11);
+      border-right: 1px solid rgba(255,255,255,.12);
       user-select: none;
     }
 
-    .line-text {
-      padding: 3px 14px;
-      white-space: pre;
-    }
+    .code-line code { padding: 3px 14px; white-space: pre; }
 
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 620px;
-      background: var(--surface);
-    }
-
-    th, td {
-      padding: 11px 12px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      background: #f7f9fb;
-    }
-
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+    table { width: 100%; min-width: 680px; border-collapse: collapse; background: var(--surface); }
+    th, td { padding: 10px 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { color: var(--muted); background: #f7f9fb; font-size: .76rem; text-transform: uppercase; }
+    td { font-family: Consolas, "Courier New", monospace; font-size: .9rem; }
     tr:last-child td { border-bottom: 0; }
 
-    td {
-      font-family: Consolas, "Courier New", monospace;
-      font-size: 0.9rem;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      min-height: 24px;
-      padding: 3px 8px;
-      border-radius: 999px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      font-size: 0.78rem;
-      font-weight: 800;
-    }
-
-    .pill.token {
-      background: var(--soft-blue);
-      color: var(--blue);
-    }
-
-    .pill.categoria {
-      background: var(--soft-amber);
-      color: var(--amber);
-    }
-
-    .empty {
-      color: var(--muted);
-      font-family: "Segoe UI", Arial, sans-serif;
-      text-align: center;
-    }
-
-    @media (max-width: 900px) {
-      .header-inner,
-      .layout,
-      .summary {
-        grid-template-columns: 1fr;
-      }
-
-      .status-badge {
-        width: 100%;
-      }
+    @media (max-width: 860px) {
+      .hero, .layout, .grid { grid-template-columns: 1fr; }
+      .badge { width: 100%; }
     }
   </style>
 </head>
 <body>
   <header>
-    <div class="header-inner">
+    <div class="wrap hero">
       <div>
-        <span class="eyebrow">Relatorio do Compilador LangC#</span>
-        <h1>Compilacao reprovada</h1>
-        <p class="file-name">examples\langc\6_erro_semantico_const.txt</p>
+        <div class="eyebrow">AcoesSemantico.pdf</div>
+        <h1>Analise Semantica</h1>
+        <p class="file">examples\semantico\6_erro_semantico_const.txt</p>
       </div>
-      <div class="status-badge erro">Erro semantico</div>
+      <div class="badge erro">Erro semantico</div>
     </div>
   </header>
-
-  <main>
-    <section class="summary" aria-label="Resumo da compilacao">
-      <div class="metric"><span>Status</span><strong>Erro</strong></div>
+  <main class="wrap">
+    <section class="grid">
       <div class="metric"><span>Tokens</span><strong>18</strong></div>
       <div class="metric"><span>Simbolos</span><strong>2</strong></div>
-      <div class="metric"><span>Linhas</span><strong>6</strong></div>
+      <div class="metric"><span>Passos</span><strong>8</strong></div>
+      <div class="metric"><span>Regra</span><strong>const</strong></div>
     </section>
-
-    <section class="panel alert"><div class="section-label">Diagnostico</div><h2>Erro semantico</h2><p>Linha 4: o valor da constante &#x27;limite&#x27; nao pode ser alterado</p></section>
-
+    <section class="panel alert">
+      <h2>Diagnostico</h2>
+      <p>Linha 4: o valor da constante &#x27;limite&#x27; nao pode ser alterado</p>
+    </section>
     <section class="layout">
       <div>
         <section class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="section-label">Entrada</span>
-              <h2>Codigo-fonte</h2>
-            </div>
-          </div>
-          <div class="code-box"><div class="code-line"><span class="line-number">1</span><span class="line-text">const limite = 10;</span></div>
-<div class="code-line"><span class="line-number">2</span><span class="line-text">&nbsp;</span></div>
-<div class="code-line"><span class="line-number">3</span><span class="line-text">int main() {</span></div>
-<div class="code-line"><span class="line-number">4</span><span class="line-text">    limite = 20;</span></div>
-<div class="code-line"><span class="line-number">5</span><span class="line-text">    return 0;</span></div>
-<div class="code-line"><span class="line-number">6</span><span class="line-text">}</span></div></div>
+          <h2>Codigo analisado</h2>
+          <div class="code-box"><div class="code-line"><span>1</span><code>const limite = 10;</code></div><div class="code-line"><span>2</span><code></code></div><div class="code-line"><span>3</span><code>int main() {</code></div><div class="code-line"><span>4</span><code>    limite = 20;</code></div><div class="code-line"><span>5</span><code>    return 0;</code></div><div class="code-line"><span>6</span><code>}</code></div></div>
+        </section>
+        <section class="panel">
+          <h2>Tabela de simbolos</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Tipo</th><th>Nivel</th><th>Linha</th><th>Origem</th></tr></thead><tbody><tr><td>1</td><td>limite</td><td>constante</td><td>int</td><td>0</td><td>1</td><td>declaracao const global</td></tr><tr><td>2</td><td>main</td><td>funcao</td><td>int</td><td>0</td><td>3</td><td>cabecalho de funcao</td></tr></tbody></table></div>
         </section>
       </div>
-
       <div>
         <section class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="section-label">Analise Lexica</span>
-              <h2>Tokens reconhecidos</h2>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Token</th><th>Lexema</th><th>Codigo</th><th>Linha</th></tr></thead>
-              <tbody><tr><td>1</td><td><span class="pill token">CONST</span></td><td>const</td><td>28</td><td>1</td></tr>
-<tr><td>2</td><td><span class="pill token">ID</span></td><td>limite</td><td>8</td><td>1</td></tr>
-<tr><td>3</td><td><span class="pill token">ASSIGN</span></td><td>=</td><td>10</td><td>1</td></tr>
-<tr><td>4</td><td><span class="pill token">NUM</span></td><td>10</td><td>9</td><td>1</td></tr>
-<tr><td>5</td><td><span class="pill token">SEMICOLON</span></td><td>;</td><td>26</td><td>1</td></tr>
-<tr><td>6</td><td><span class="pill token">INT</span></td><td>int</td><td>1</td><td>3</td></tr>
-<tr><td>7</td><td><span class="pill token">ID</span></td><td>main</td><td>8</td><td>3</td></tr>
-<tr><td>8</td><td><span class="pill token">LPAREN</span></td><td>(</td><td>21</td><td>3</td></tr>
-<tr><td>9</td><td><span class="pill token">RPAREN</span></td><td>)</td><td>22</td><td>3</td></tr>
-<tr><td>10</td><td><span class="pill token">LBRACE</span></td><td>{</td><td>23</td><td>3</td></tr>
-<tr><td>11</td><td><span class="pill token">ID</span></td><td>limite</td><td>8</td><td>4</td></tr>
-<tr><td>12</td><td><span class="pill token">ASSIGN</span></td><td>=</td><td>10</td><td>4</td></tr>
-<tr><td>13</td><td><span class="pill token">NUM</span></td><td>20</td><td>9</td><td>4</td></tr>
-<tr><td>14</td><td><span class="pill token">SEMICOLON</span></td><td>;</td><td>26</td><td>4</td></tr>
-<tr><td>15</td><td><span class="pill token">RETURN</span></td><td>return</td><td>6</td><td>5</td></tr>
-<tr><td>16</td><td><span class="pill token">NUM</span></td><td>0</td><td>9</td><td>5</td></tr>
-<tr><td>17</td><td><span class="pill token">SEMICOLON</span></td><td>;</td><td>26</td><td>5</td></tr>
-<tr><td>18</td><td><span class="pill token">RBRACE</span></td><td>}</td><td>24</td><td>6</td></tr>
-<tr><td>19</td><td><span class="pill token">EOF</span></td><td>$</td><td>27</td><td>7</td></tr></tbody>
-            </table>
-          </div>
+          <h2>Passos do PDF</h2>
+          <div class="table-wrap"><table><thead><tr><th>Passo</th><th>Trecho do PDF</th><th>Implementacao</th></tr></thead><tbody><tr><td>1</td><td>Usar uma estrutura para carregar a tabela de simbolos abaixo: Nome, Categoria, Tipo, Nivel.</td><td>A classe Simbolo guarda exatamente esses campos e tambem a linha/origem para explicar o resultado.</td></tr><tr><td>2</td><td>Inserir na tabela de simbolos quando encontrar const.</td><td>Quando aparece &#x27;const nome = valor;&#x27;, o nome fica em const + 1 e o valor em const + 3.</td></tr><tr><td>3</td><td>Nivel = 0 Global; Categoria = constante.</td><td>Toda const declarada antes das funcoes entra como categoria constante e nivel 0.</td></tr><tr><td>4</td><td>Regra: valor nao pode ser alterado.</td><td>Se um identificador constante aparecer seguido de &#x27;=&#x27;, a regra semantica aponta erro.</td></tr><tr><td>5</td><td>Mostrar o numero da linha e o erro semantico.</td><td>O diagnostico final sempre mostra a linha do token que violou a regra.</td></tr></tbody></table></div>
         </section>
-
         <section class="panel">
-          <div class="panel-header">
-            <div>
-              <span class="section-label">Analise Semantica</span>
-              <h2>Tabela de simbolos</h2>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Tipo</th><th>Nivel</th><th>Linha</th></tr></thead>
-              <tbody><tr><td>1</td><td>limite</td><td><span class="pill categoria">constante</span></td><td>int</td><td>0</td><td>1</td></tr>
-<tr><td>2</td><td>main</td><td><span class="pill categoria">funcao</span></td><td>int</td><td>0</td><td>3</td></tr></tbody>
-            </table>
-          </div>
+          <h2>Execucao passo a passo</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Etapa</th><th>Detalhe</th><th>Linha</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Analise lexica</td><td>18 token(s) gerado(s).</td><td></td><td>OK</td></tr><tr><td>2</td><td>Preparar tabela</td><td>Criada a estrutura Nome, Categoria, Tipo e Nivel solicitada no PDF.</td><td></td><td>OK</td></tr><tr><td>3</td><td>Encontrar const</td><td>Token &#x27;const&#x27; encontrado; const + 1 aponta para o nome &#x27;limite&#x27;.</td><td>1</td><td>OK</td></tr><tr><td>4</td><td>Inferir tipo</td><td>const + 3 inicia o valor &#x27;10&#x27;, entao o tipo registrado e int.</td><td>1</td><td>OK</td></tr><tr><td>5</td><td>Inserir simbolo</td><td>Inserido Nome=limite, Categoria=constante, Tipo=int, Nivel=0.</td><td>1</td><td>OK</td></tr><tr><td>6</td><td>Analise sintatica</td><td>Programa validado pelo analisador sintatico antes da checagem semantica.</td><td></td><td>OK</td></tr><tr><td>7</td><td>Completar tabela</td><td>Funcao &#x27;main&#x27; inserida no nivel 0 para deixar a tabela completa.</td><td>3</td><td>OK</td></tr><tr><td>8</td><td>Erro semantico</td><td>&#x27;limite&#x27; esta na tabela como constante e aparece seguido de &#x27;=&#x27;; isso viola a regra do PDF.</td><td>4</td><td>ERRO</td></tr></tbody></table></div>
+        </section>
+        <section class="panel">
+          <h2>Tokens semanticamente relevantes</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Token</th><th>Lexema</th><th>Codigo</th><th>Linha</th><th>Papel semantico</th></tr></thead><tbody><tr><td>1</td><td>CONST</td><td>const</td><td>8</td><td>1</td><td>inicio da acao const do PDF</td></tr><tr><td>2</td><td>ID</td><td>limite</td><td>8</td><td>1</td><td>const + 1: nome inserido na tabela</td></tr><tr><td>3</td><td>ASSIGN</td><td>=</td><td>10</td><td>1</td><td>atribuicao; corresponde a regra de alteracao</td></tr><tr><td>4</td><td>NUM</td><td>10</td><td>9</td><td>1</td><td>const + 3 ou valor usado na atribuicao</td></tr><tr><td>5</td><td>SEMICOLON</td><td>;</td><td>26</td><td>1</td><td>-</td></tr><tr><td>6</td><td>INT</td><td>int</td><td>1</td><td>3</td><td>-</td></tr><tr><td>7</td><td>ID</td><td>main</td><td>8</td><td>3</td><td>-</td></tr><tr><td>8</td><td>LPAREN</td><td>(</td><td>21</td><td>3</td><td>-</td></tr><tr><td>9</td><td>RPAREN</td><td>)</td><td>22</td><td>3</td><td>-</td></tr><tr><td>10</td><td>LBRACE</td><td>{</td><td>23</td><td>3</td><td>-</td></tr><tr><td>11</td><td>ID</td><td>limite</td><td>8</td><td>4</td><td>identificador antes de atribuicao; verificar tabela</td></tr><tr><td>12</td><td>ASSIGN</td><td>=</td><td>10</td><td>4</td><td>atribuicao; corresponde a regra de alteracao</td></tr><tr><td>13</td><td>NUM</td><td>20</td><td>9</td><td>4</td><td>const + 3 ou valor usado na atribuicao</td></tr><tr><td>14</td><td>SEMICOLON</td><td>;</td><td>26</td><td>4</td><td>-</td></tr><tr><td>15</td><td>RETURN</td><td>return</td><td>6</td><td>5</td><td>-</td></tr><tr><td>16</td><td>NUM</td><td>0</td><td>9</td><td>5</td><td>-</td></tr><tr><td>17</td><td>SEMICOLON</td><td>;</td><td>26</td><td>5</td><td>-</td></tr><tr><td>18</td><td>RBRACE</td><td>}</td><td>24</td><td>6</td><td>-</td></tr></tbody></table></div>
         </section>
       </div>
     </section>
