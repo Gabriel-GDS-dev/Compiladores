@@ -2,55 +2,62 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Atividade sintatico - arquivo exemplo",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/atividade_sintatico.py",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "args": [
-                "${workspaceFolder}/examples/ll1/atividade_sintatico_exemplo.txt"
-            ]
-        },
-        {
-            "name": "Atividade sintatico - entrada direta",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/atividade_sintatico.py",
-            "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal",
-            "args": [
-                "cbca"
-            ]
-        },
-        {
-            "name": "Compilador LangC#",
+            "name": "Compilador LangC# - todos os exemplos",
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/src/compilador.py",
             "cwd": "${workspaceFolder}",
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "Atividade semantico - erro const",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "${workspaceFolder}/src/atividade_semantico.py",
-            "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}/examples/semantico/6_erro_semantico_const.txt"
+                "--manter-aberto"
             ]
         },
         {
-            "name": "Atividade semantico - const ok",
+            "name": "Compilador LangC# - exemplo simples",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/src/atividade_semantico.py",
+            "program": "${workspaceFolder}/src/compilador.py",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "args": [
-                "${workspaceFolder}/examples/semantico/5_const_ok.txt"
+                "${workspaceFolder}/examples/langc/1_simples_ok.txt",
+                "--manter-aberto"
+            ]
+        },
+        {
+            "name": "Compilador LangC# - exemplo longo",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/compilador.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}/examples/langc/2_longo_ok.txt",
+                "--manter-aberto"
+            ]
+        },
+        {
+            "name": "Compilador LangC# - const ok",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/compilador.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}/examples/semantico/5_const_ok.txt",
+                "--manter-aberto"
+            ]
+        },
+        {
+            "name": "Compilador LangC# - erro const",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/compilador.py",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "args": [
+                "${workspaceFolder}/examples/semantico/6_erro_semantico_const.txt",
+                "--manter-aberto"
             ]
         }
     ]

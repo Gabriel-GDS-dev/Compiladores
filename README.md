@@ -38,6 +38,12 @@ Gerar relatorios para todos os exemplos:
 python src/compilador.py
 ```
 
+Ao finalizar, o compilador abre automaticamente o indice HTML no navegador:
+
+```text
+outputs/reports/index.html
+```
+
 Compilar um arquivo especifico:
 
 ```bash
@@ -59,6 +65,24 @@ outputs/reports/index.html
 ```
 
 Abra `web/index.html` ou `outputs/reports/index.html` no navegador para visualizar os resultados em HTML.
+
+Para gerar HTML sem abrir o navegador:
+
+```bash
+python src/compilador.py --nao-abrir-html
+```
+
+Para manter a execucao aberta depois de abrir o HTML, como no F5 do VS Code:
+
+```bash
+python src/compilador.py --manter-aberto
+```
+
+Para abrir todos os relatorios individuais em abas:
+
+```bash
+python src/compilador.py --abrir-todos-html
+```
 
 ## Regras atendidas
 

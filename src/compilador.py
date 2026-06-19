@@ -15,6 +15,8 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import os
+import webbrowser
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -1711,6 +1713,36 @@ def gerar_indice_html(resultados: list[ResultadoCompilacao]) -> Path:
     return caminho
 
 
+def abrir_html_no_navegador(caminhos: list[Path | None]) -> list[Path]:
+    abertos: list[Path] = []
+    vistos: set[Path] = set()
+
+    for caminho in caminhos:
+        if caminho is None:
+            continue
+
+        caminho_resolvido = caminho.resolve()
+        if caminho_resolvido in vistos or not caminho_resolvido.is_file():
+            continue
+
+        if os.name == "nt":
+            os.startfile(str(caminho_resolvido))  # type: ignore[attr-defined]
+        else:
+            webbrowser.open_new_tab(caminho_resolvido.as_uri())
+
+        vistos.add(caminho_resolvido)
+        abertos.append(caminho_resolvido)
+
+    return abertos
+
+
+def pausar_apos_abrir_html() -> None:
+    try:
+        input("\nHTML aberto. Pressione Enter para finalizar o compilador...")
+    except (EOFError, KeyboardInterrupt):
+        pass
+
+
 def compilar_arquivo(caminho: Path, gerar_json: bool = True, gerar_html: bool = True) -> ResultadoCompilacao:
     codigo = ler_arquivo(caminho)
     resultado = compilar_codigo(codigo, str(caminho))
@@ -1783,6 +1815,9 @@ def main() -> int:
     )
     parser.add_argument("--sem-html", action="store_true", help="Nao gera relatorios HTML.")
     parser.add_argument("--sem-json", action="store_true", help="Nao gera JSON de tokens.")
+    parser.add_argument("--nao-abrir-html", action="store_true", help="Gera HTML, mas nao abre o navegador.")
+    parser.add_argument("--abrir-todos-html", action="store_true", help="Abre cada relatorio HTML gerado em uma aba.")
+    parser.add_argument("--manter-aberto", action="store_true", help="Aguarda Enter antes de finalizar apos abrir o HTML.")
     parser.add_argument("--codigo", help="Compila uma string de codigo diretamente.")
     args = parser.parse_args()
 
@@ -1828,6 +1863,18 @@ def main() -> int:
 
     if indice:
         print(f"\nIndice HTML: {indice.relative_to(RAIZ_PROJETO)}")
+
+    if not args.sem_html and not args.nao_abrir_html:
+        if args.abrir_todos_html:
+            htmls = [indice] + [resultado.relatorio for resultado in resultados]
+        else:
+            htmls = [indice] if indice is not None else [resultado.relatorio for resultado in resultados]
+
+        for caminho_aberto in abrir_html_no_navegador(htmls):
+            print(f"HTML aberto no navegador: {caminho_aberto.relative_to(RAIZ_PROJETO)}")
+
+    if args.manter_aberto:
+        pausar_apos_abrir_html()
 
     if usando_exemplos_padrao:
         return 0
