@@ -3,24 +3,24 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Relatorio Semantico - examples\semantico\6_erro_semantico_const.txt</title>
+  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\semantico\6_erro_semantico_const.txt</title>
   <style>
     :root {
-      --bg: #f5f7f8;
+      --bg: #f4f6f8;
       --surface: #ffffff;
       --ink: #18212a;
-      --muted: #64717f;
-      --line: #d9e1e8;
+      --muted: #62707f;
+      --line: #d8e0e7;
       --accent: #176b87;
+      --accent-2: #2f6f5e;
+      --warn: #b84838;
       --ok: #227252;
-      --erro: #b23b32;
-      --soft-ok: #e5f4ed;
-      --soft-erro: #fde9e5;
-      --soft-info: #e8f2f6;
+      --soft-blue: #e8f2f6;
+      --soft-green: #e5f4ed;
+      --soft-red: #fde9e5;
+      --soft-yellow: #fff3d8;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
       min-width: 320px;
@@ -29,98 +29,110 @@
       font-family: "Segoe UI", Arial, sans-serif;
       line-height: 1.5;
     }
-
     header {
-      background: #18212a;
+      background: #17242d;
       color: #f8fbfc;
       border-bottom: 5px solid var(--accent);
     }
-
     .wrap {
-      width: min(1160px, calc(100% - 32px));
+      width: min(1180px, calc(100% - 32px));
       margin: 0 auto;
     }
-
     .hero {
-      padding: 30px 0 28px;
+      min-height: 210px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 24px;
       align-items: end;
+      padding: 34px 0 28px;
     }
-
-    h1, h2, p { margin: 0; }
-    h1 { margin-top: 6px; font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1; letter-spacing: 0; }
-    h2 { font-size: 1.16rem; }
-    main { padding: 24px 0 44px; }
-
     .eyebrow {
       color: #9bd3df;
       font-size: .78rem;
       font-weight: 800;
       text-transform: uppercase;
     }
-
-    .file { margin-top: 12px; color: #cbd9df; font-family: Consolas, "Courier New", monospace; overflow-wrap: anywhere; }
-
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      margin-top: 8px;
+      font-size: clamp(2rem, 4vw, 3.7rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .file {
+      margin-top: 12px;
+      color: #cbd9df;
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
     .badge {
-      min-width: 180px;
-      padding: 14px 16px;
+      min-width: 128px;
       border-radius: 8px;
+      padding: 14px 16px;
       text-align: center;
-      font-weight: 800;
-      background: var(--soft-ok);
+      font-weight: 900;
+      background: var(--soft-green);
       color: var(--ok);
     }
-
-    .badge.erro { background: var(--soft-erro); color: var(--erro); }
-
-    .grid {
+    .badge.erro {
+      background: var(--soft-red);
+      color: var(--warn);
+    }
+    main { padding: 24px 0 44px; }
+    .metrics {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 14px;
       margin-bottom: 18px;
     }
-
     .metric, .panel {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 8px;
-      box-shadow: 0 16px 38px rgba(24, 33, 42, .08);
+      box-shadow: 0 14px 32px rgba(24, 33, 42, .08);
     }
-
-    .metric { padding: 16px; min-height: 88px; }
-    .metric span { display: block; color: var(--muted); font-size: .76rem; font-weight: 800; text-transform: uppercase; }
-    .metric strong { display: block; margin-top: 8px; font-size: 1.45rem; }
-
-    .panel { padding: 18px; margin-bottom: 18px; overflow: hidden; }
-    .panel.alert { border-color: #e9b1aa; background: var(--soft-erro); }
-    .panel.info { background: var(--soft-info); }
-    .panel h2 { margin-bottom: 12px; }
-
+    .metric { min-height: 86px; padding: 15px; }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.42rem;
+      overflow-wrap: anywhere;
+    }
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .panel h2 { margin-bottom: 12px; font-size: 1.14rem; }
+    .error-panel { background: var(--soft-red); border-color: #e8afa8; }
+    .ok-panel { background: var(--soft-green); border-color: #add9c6; }
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr);
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
       gap: 18px;
       align-items: start;
     }
-
     .code-box {
+      max-height: 580px;
+      overflow: auto;
+      border-radius: 8px;
       background: #101820;
       color: #edf5f3;
-      border-radius: 8px;
-      overflow: auto;
-      max-height: 560px;
       font-family: Consolas, "Courier New", monospace;
       font-size: .92rem;
     }
-
     .code-line {
       display: grid;
       grid-template-columns: 52px minmax(0, 1fr);
       min-height: 26px;
     }
-
     .code-line span {
       padding: 3px 12px;
       color: #8fa29b;
@@ -128,18 +140,41 @@
       border-right: 1px solid rgba(255,255,255,.12);
       user-select: none;
     }
-
     .code-line code { padding: 3px 14px; white-space: pre; }
-
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
-    table { width: 100%; min-width: 680px; border-collapse: collapse; background: var(--surface); }
-    th, td { padding: 10px 11px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { color: var(--muted); background: #f7f9fb; font-size: .76rem; text-transform: uppercase; }
-    td { font-family: Consolas, "Courier New", monospace; font-size: .9rem; }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      max-height: 560px;
+    }
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--muted);
+      background: #f7f9fb;
+      font-size: .74rem;
+      text-transform: uppercase;
+    }
+    td { font-family: Consolas, "Courier New", monospace; }
     tr:last-child td { border-bottom: 0; }
-
-    @media (max-width: 860px) {
-      .hero, .layout, .grid { grid-template-columns: 1fr; }
+    .requirements td:last-child { background: var(--soft-blue); }
+    @media (max-width: 900px) {
+      .hero, .layout, .metrics { grid-template-columns: 1fr; }
       .badge { width: 100%; }
     }
   </style>
@@ -148,49 +183,53 @@
   <header>
     <div class="wrap hero">
       <div>
-        <div class="eyebrow">AcoesSemantico.pdf</div>
-        <h1>Analise Semantica</h1>
-        <p class="file">examples\semantico\6_erro_semantico_const.txt</p>
+        <div class="eyebrow">Compilador LangC#</div>
+        <h1>Relatorio de Analise</h1>
+        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\semantico\6_erro_semantico_const.txt</p>
       </div>
-      <div class="badge erro">Erro semantico</div>
+      <div class="badge erro">ERRO</div>
     </div>
   </header>
   <main class="wrap">
-    <section class="grid">
+    <section class="metrics">
+      <div class="metric"><span>Fase</span><strong>semantica</strong></div>
       <div class="metric"><span>Tokens</span><strong>18</strong></div>
+      <div class="metric"><span>Passos sintaticos</span><strong>62</strong></div>
       <div class="metric"><span>Simbolos</span><strong>2</strong></div>
-      <div class="metric"><span>Passos</span><strong>8</strong></div>
-      <div class="metric"><span>Regra</span><strong>const</strong></div>
     </section>
-    <section class="panel alert">
+    <section class="panel error-panel">
       <h2>Diagnostico</h2>
       <p>Linha 4: o valor da constante &#x27;limite&#x27; nao pode ser alterado</p>
     </section>
     <section class="layout">
       <div>
         <section class="panel">
-          <h2>Codigo analisado</h2>
+          <h2>Codigo-fonte</h2>
           <div class="code-box"><div class="code-line"><span>1</span><code>const limite = 10;</code></div><div class="code-line"><span>2</span><code></code></div><div class="code-line"><span>3</span><code>int main() {</code></div><div class="code-line"><span>4</span><code>    limite = 20;</code></div><div class="code-line"><span>5</span><code>    return 0;</code></div><div class="code-line"><span>6</span><code>}</code></div></div>
         </section>
         <section class="panel">
-          <h2>Tabela de simbolos</h2>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Tipo</th><th>Nivel</th><th>Linha</th><th>Origem</th></tr></thead><tbody><tr><td>1</td><td>limite</td><td>constante</td><td>int</td><td>0</td><td>1</td><td>declaracao const global</td></tr><tr><td>2</td><td>main</td><td>funcao</td><td>int</td><td>0</td><td>3</td><td>cabecalho de funcao</td></tr></tbody></table></div>
+          <h2>Tokens</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Codigo</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Coluna</th></tr></thead><tbody><tr><td>1</td><td>28</td><td>CONST</td><td>const</td><td>1</td><td>1</td></tr><tr><td>2</td><td>8</td><td>ID</td><td>limite</td><td>1</td><td>7</td></tr><tr><td>3</td><td>10</td><td>ASSIGN</td><td>=</td><td>1</td><td>14</td></tr><tr><td>4</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>16</td></tr><tr><td>5</td><td>26</td><td>SEMICOLON</td><td>;</td><td>1</td><td>18</td></tr><tr><td>6</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>1</td></tr><tr><td>7</td><td>8</td><td>ID</td><td>main</td><td>3</td><td>5</td></tr><tr><td>8</td><td>21</td><td>LPAREN</td><td>(</td><td>3</td><td>9</td></tr><tr><td>9</td><td>22</td><td>RPAREN</td><td>)</td><td>3</td><td>10</td></tr><tr><td>10</td><td>23</td><td>LBRACE</td><td>{</td><td>3</td><td>12</td></tr><tr><td>11</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>5</td></tr><tr><td>12</td><td>10</td><td>ASSIGN</td><td>=</td><td>4</td><td>12</td></tr><tr><td>13</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>14</td></tr><tr><td>14</td><td>26</td><td>SEMICOLON</td><td>;</td><td>4</td><td>16</td></tr><tr><td>15</td><td>6</td><td>RETURN</td><td>return</td><td>5</td><td>5</td></tr><tr><td>16</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>12</td></tr><tr><td>17</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>13</td></tr><tr><td>18</td><td>24</td><td>RBRACE</td><td>}</td><td>6</td><td>1</td></tr></tbody></table></div>
         </section>
       </div>
       <div>
-        <section class="panel">
-          <h2>Passos do PDF</h2>
-          <div class="table-wrap"><table><thead><tr><th>Passo</th><th>Trecho do PDF</th><th>Implementacao</th></tr></thead><tbody><tr><td>1</td><td>Usar uma estrutura para carregar a tabela de simbolos abaixo: Nome, Categoria, Tipo, Nivel.</td><td>A classe Simbolo guarda exatamente esses campos e tambem a linha/origem para explicar o resultado.</td></tr><tr><td>2</td><td>Inserir na tabela de simbolos quando encontrar const.</td><td>Quando aparece &#x27;const nome = valor;&#x27;, o nome fica em const + 1 e o valor em const + 3.</td></tr><tr><td>3</td><td>Nivel = 0 Global; Categoria = constante.</td><td>Toda const declarada antes das funcoes entra como categoria constante e nivel 0.</td></tr><tr><td>4</td><td>Regra: valor nao pode ser alterado.</td><td>Se um identificador constante aparecer seguido de &#x27;=&#x27;, a regra semantica aponta erro.</td></tr><tr><td>5</td><td>Mostrar o numero da linha e o erro semantico.</td><td>O diagnostico final sempre mostra a linha do token que violou a regra.</td></tr></tbody></table></div>
+        <section class="panel requirements">
+          <h2>Requisitos dos PDFs</h2>
+          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.</td><td>Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra a tabela completa com constantes, funcoes, parametros e variaveis.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Inserir const global como Categoria constante e Nivel 0.</td><td>Declaracoes const antes das funcoes entram como simbolos globais.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Valor de const nao pode ser alterado; mostrar linha e erro semantico.</td><td>Atribuicao para simbolo constante gera ErroSemantico com linha.</td></tr></tbody></table></div>
         </section>
         <section class="panel">
-          <h2>Execucao passo a passo</h2>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Etapa</th><th>Detalhe</th><th>Linha</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Analise lexica</td><td>18 token(s) gerado(s).</td><td></td><td>OK</td></tr><tr><td>2</td><td>Preparar tabela</td><td>Criada a estrutura Nome, Categoria, Tipo e Nivel solicitada no PDF.</td><td></td><td>OK</td></tr><tr><td>3</td><td>Encontrar const</td><td>Token &#x27;const&#x27; encontrado; const + 1 aponta para o nome &#x27;limite&#x27;.</td><td>1</td><td>OK</td></tr><tr><td>4</td><td>Inferir tipo</td><td>const + 3 inicia o valor &#x27;10&#x27;, entao o tipo registrado e int.</td><td>1</td><td>OK</td></tr><tr><td>5</td><td>Inserir simbolo</td><td>Inserido Nome=limite, Categoria=constante, Tipo=int, Nivel=0.</td><td>1</td><td>OK</td></tr><tr><td>6</td><td>Analise sintatica</td><td>Programa validado pelo analisador sintatico antes da checagem semantica.</td><td></td><td>OK</td></tr><tr><td>7</td><td>Completar tabela</td><td>Funcao &#x27;main&#x27; inserida no nivel 0 para deixar a tabela completa.</td><td>3</td><td>OK</td></tr><tr><td>8</td><td>Erro semantico</td><td>&#x27;limite&#x27; esta na tabela como constante e aparece seguido de &#x27;=&#x27;; isso viola a regra do PDF.</td><td>4</td><td>ERRO</td></tr></tbody></table></div>
+          <h2>Tabela de simbolos</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Tipo</th><th>Nivel</th><th>Linha</th><th>Escopo</th><th>Parametros</th></tr></thead><tbody><tr><td>1</td><td>limite</td><td>constante</td><td>int</td><td>0</td><td>1</td><td>global</td><td></td></tr><tr><td>2</td><td>main</td><td>funcao</td><td>int</td><td>0</td><td>3</td><td>global</td><td></td></tr></tbody></table></div>
         </section>
         <section class="panel">
-          <h2>Tokens semanticamente relevantes</h2>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Token</th><th>Lexema</th><th>Codigo</th><th>Linha</th><th>Papel semantico</th></tr></thead><tbody><tr><td>1</td><td>CONST</td><td>const</td><td>8</td><td>1</td><td>inicio da acao const do PDF</td></tr><tr><td>2</td><td>ID</td><td>limite</td><td>8</td><td>1</td><td>const + 1: nome inserido na tabela</td></tr><tr><td>3</td><td>ASSIGN</td><td>=</td><td>10</td><td>1</td><td>atribuicao; corresponde a regra de alteracao</td></tr><tr><td>4</td><td>NUM</td><td>10</td><td>9</td><td>1</td><td>const + 3 ou valor usado na atribuicao</td></tr><tr><td>5</td><td>SEMICOLON</td><td>;</td><td>26</td><td>1</td><td>-</td></tr><tr><td>6</td><td>INT</td><td>int</td><td>1</td><td>3</td><td>-</td></tr><tr><td>7</td><td>ID</td><td>main</td><td>8</td><td>3</td><td>-</td></tr><tr><td>8</td><td>LPAREN</td><td>(</td><td>21</td><td>3</td><td>-</td></tr><tr><td>9</td><td>RPAREN</td><td>)</td><td>22</td><td>3</td><td>-</td></tr><tr><td>10</td><td>LBRACE</td><td>{</td><td>23</td><td>3</td><td>-</td></tr><tr><td>11</td><td>ID</td><td>limite</td><td>8</td><td>4</td><td>identificador antes de atribuicao; verificar tabela</td></tr><tr><td>12</td><td>ASSIGN</td><td>=</td><td>10</td><td>4</td><td>atribuicao; corresponde a regra de alteracao</td></tr><tr><td>13</td><td>NUM</td><td>20</td><td>9</td><td>4</td><td>const + 3 ou valor usado na atribuicao</td></tr><tr><td>14</td><td>SEMICOLON</td><td>;</td><td>26</td><td>4</td><td>-</td></tr><tr><td>15</td><td>RETURN</td><td>return</td><td>6</td><td>5</td><td>-</td></tr><tr><td>16</td><td>NUM</td><td>0</td><td>9</td><td>5</td><td>-</td></tr><tr><td>17</td><td>SEMICOLON</td><td>;</td><td>26</td><td>5</td><td>-</td></tr><tr><td>18</td><td>RBRACE</td><td>}</td><td>24</td><td>6</td><td>-</td></tr></tbody></table></div>
+          <h2>Eventos semanticos</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Etapa</th><th>Detalhe</th><th>Linha</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Preparar tabela</td><td>Criada a tabela de simbolos com Nome, Categoria, Tipo e Nivel, conforme AcoesSemantico.pdf.</td><td></td><td>OK</td></tr><tr><td>2</td><td>Encontrar const</td><td>Token &#x27;const&#x27; encontrado no nivel global; const + 1 deve apontar para o nome.</td><td>1</td><td>OK</td></tr><tr><td>3</td><td>Inferir tipo</td><td>const + 3 inicia em &#x27;10&#x27;; o tipo registrado para &#x27;limite&#x27; e int.</td><td>1</td><td>OK</td></tr><tr><td>4</td><td>Inserir simbolo</td><td>Inserido Nome=limite, Categoria=constante, Tipo=int, Nivel=0.</td><td>1</td><td>OK</td></tr><tr><td>5</td><td>Declarar funcao</td><td>Funcao &#x27;main&#x27; registrada no nivel 0 com retorno int.</td><td>3</td><td>OK</td></tr><tr><td>6</td><td>Consultar tabela</td><td>Token &#x27;limite&#x27; antes de &#x27;=&#x27;; consultar categoria na tabela de simbolos.</td><td>4</td><td>OK</td></tr><tr><td>7</td><td>Erro semantico</td><td>&#x27;limite&#x27; esta como constante; o proximo token da pilha nao pode ser &#x27;=&#x27;.</td><td>4</td><td>ERRO</td></tr></tbody></table></div>
         </section>
       </div>
+    </section>
+    <section class="panel">
+      <h2>Execucao sintatica tabular</h2>
+      <div class="table-wrap"><table><thead><tr><th>Passo</th><th>CodTok</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Pilha</th><th>Acao</th></tr></thead><tbody><tr><td>1</td><td>28</td><td>CONST</td><td>const</td><td>1</td><td>PROGRAM $</td><td>Usa 1: PROGRAM -&gt; CONST_DECL_LIST_OPT FUNCTION_LIST</td></tr><tr><td>2</td><td>28</td><td>CONST</td><td>const</td><td>1</td><td>CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 2: CONST_DECL_LIST_OPT -&gt; CONST_DECL CONST_DECL_LIST_OPT</td></tr><tr><td>3</td><td>28</td><td>CONST</td><td>const</td><td>1</td><td>CONST_DECL CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 4: CONST_DECL -&gt; const id = EXPR ;</td></tr><tr><td>4</td><td>28</td><td>CONST</td><td>const</td><td>1</td><td>const id = EXPR ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Consome const</td></tr><tr><td>5</td><td>8</td><td>ID</td><td>limite</td><td>1</td><td>id = EXPR ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Consome id</td></tr><tr><td>6</td><td>10</td><td>ASSIGN</td><td>=</td><td>1</td><td>= EXPR ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Consome =</td></tr><tr><td>7</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>EXPR ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>8</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>REL_EXPR ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>9</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>ADD_EXPR REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>10</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>11</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 62: FACTOR -&gt; num</td></tr><tr><td>12</td><td>9</td><td>NUM</td><td>10</td><td>1</td><td>num MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Consome num</td></tr><tr><td>13</td><td>26</td><td>SEMICOLON</td><td>;</td><td>1</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>14</td><td>26</td><td>SEMICOLON</td><td>;</td><td>1</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>15</td><td>26</td><td>SEMICOLON</td><td>;</td><td>1</td><td>REL_EXPR_TAIL ; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>16</td><td>26</td><td>SEMICOLON</td><td>;</td><td>1</td><td>; CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Consome ;</td></tr><tr><td>17</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 3: CONST_DECL_LIST_OPT -&gt; epsilon</td></tr><tr><td>18</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>FUNCTION_LIST $</td><td>Usa 5: FUNCTION_LIST -&gt; FUNCTION FUNCTION_LIST_TAIL</td></tr><tr><td>19</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>FUNCTION FUNCTION_LIST_TAIL $</td><td>Usa 8: FUNCTION -&gt; TYPE id ( PARAM_LIST_OPT ) BLOCK</td></tr><tr><td>20</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>TYPE id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 9: TYPE -&gt; int</td></tr><tr><td>21</td><td>1</td><td>INT</td><td>int</td><td>3</td><td>int id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome int</td></tr><tr><td>22</td><td>8</td><td>ID</td><td>main</td><td>3</td><td>id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>23</td><td>21</td><td>LPAREN</td><td>(</td><td>3</td><td>( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome (</td></tr><tr><td>24</td><td>22</td><td>RPAREN</td><td>)</td><td>3</td><td>PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 12: PARAM_LIST_OPT -&gt; epsilon</td></tr><tr><td>25</td><td>22</td><td>RPAREN</td><td>)</td><td>3</td><td>) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome )</td></tr><tr><td>26</td><td>23</td><td>LBRACE</td><td>{</td><td>3</td><td>BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 17: BLOCK -&gt; { DECL_LIST_OPT STMT_LIST_OPT }</td></tr><tr><td>27</td><td>23</td><td>LBRACE</td><td>{</td><td>3</td><td>{ DECL_LIST_OPT STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Consome {</td></tr><tr><td>28</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>DECL_LIST_OPT STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 19: DECL_LIST_OPT -&gt; epsilon</td></tr><tr><td>29</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 24: STMT_LIST_OPT -&gt; STMT_LIST</td></tr><tr><td>30</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>STMT_LIST } FUNCTION_LIST_TAIL $</td><td>Usa 26: STMT_LIST -&gt; STMT STMT_LIST_TAIL</td></tr><tr><td>31</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 29: STMT -&gt; ASSIGN_STMT</td></tr><tr><td>32</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>ASSIGN_STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 35: ASSIGN_STMT -&gt; id = EXPR ;</td></tr><tr><td>33</td><td>8</td><td>ID</td><td>limite</td><td>4</td><td>id = EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>34</td><td>10</td><td>ASSIGN</td><td>=</td><td>4</td><td>= EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome =</td></tr><tr><td>35</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>36</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>REL_EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>37</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>ADD_EXPR REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>38</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>39</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 62: FACTOR -&gt; num</td></tr><tr><td>40</td><td>9</td><td>NUM</td><td>20</td><td>4</td><td>num MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome num</td></tr><tr><td>41</td><td>26</td><td>SEMICOLON</td><td>;</td><td>4</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>42</td><td>26</td><td>SEMICOLON</td><td>;</td><td>4</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>43</td><td>26</td><td>SEMICOLON</td><td>;</td><td>4</td><td>REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>44</td><td>26</td><td>SEMICOLON</td><td>;</td><td>4</td><td>; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>45</td><td>6</td><td>RETURN</td><td>return</td><td>5</td><td>STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 27: STMT_LIST_TAIL -&gt; STMT STMT_LIST_TAIL</td></tr><tr><td>46</td><td>6</td><td>RETURN</td><td>return</td><td>5</td><td>STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 33: STMT -&gt; RETURN_STMT</td></tr><tr><td>47</td><td>6</td><td>RETURN</td><td>return</td><td>5</td><td>RETURN_STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 36: RETURN_STMT -&gt; return EXPR ;</td></tr><tr><td>48</td><td>6</td><td>RETURN</td><td>return</td><td>5</td><td>return EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome return</td></tr><tr><td>49</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>50</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>REL_EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>51</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>ADD_EXPR REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>52</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>53</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 62: FACTOR -&gt; num</td></tr><tr><td>54</td><td>9</td><td>NUM</td><td>0</td><td>5</td><td>num MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome num</td></tr><tr><td>55</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>56</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>57</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>58</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>59</td><td>24</td><td>RBRACE</td><td>}</td><td>6</td><td>STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 28: STMT_LIST_TAIL -&gt; epsilon</td></tr><tr><td>60</td><td>24</td><td>RBRACE</td><td>}</td><td>6</td><td>} FUNCTION_LIST_TAIL $</td><td>Consome }</td></tr><tr><td>61</td><td>27</td><td>EOF</td><td>$</td><td>7</td><td>FUNCTION_LIST_TAIL $</td><td>Usa 7: FUNCTION_LIST_TAIL -&gt; epsilon</td></tr><tr><td>62</td><td>27</td><td>EOF</td><td>$</td><td>7</td><td>$</td><td>Consome $</td></tr></tbody></table></div>
     </section>
   </main>
 </body>

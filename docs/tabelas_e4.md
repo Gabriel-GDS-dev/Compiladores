@@ -4,6 +4,12 @@ Este documento registra a gramatica usada pelo analisador sintatico tabular
 implementado em `src/compilador.py`, suas tabelas FIRST/FOLLOW e a tabela
 parser LL(1).
 
+> Nota da versao final: para atender `AcoesSemantico.pdf`, o compilador atual
+> aceita declaracoes globais `const nome = expressao;` antes da lista de
+> funcoes. Na implementacao final, `PROGRAM` expande para
+> `CONST_DECL_LIST_OPT FUNCTION_LIST`; a tabela abaixo preserva a base da E4
+> original usada para a parte de funcoes, blocos, comandos e expressoes.
+
 ## Gramatica
 
 ```text

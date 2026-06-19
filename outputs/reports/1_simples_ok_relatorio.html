@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\1_simples_ok.txt</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --ink: #18212a;
+      --muted: #62707f;
+      --line: #d8e0e7;
+      --accent: #176b87;
+      --accent-2: #2f6f5e;
+      --warn: #b84838;
+      --ok: #227252;
+      --soft-blue: #e8f2f6;
+      --soft-green: #e5f4ed;
+      --soft-red: #fde9e5;
+      --soft-yellow: #fff3d8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+    header {
+      background: #17242d;
+      color: #f8fbfc;
+      border-bottom: 5px solid var(--accent);
+    }
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      min-height: 210px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      padding: 34px 0 28px;
+    }
+    .eyebrow {
+      color: #9bd3df;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      margin-top: 8px;
+      font-size: clamp(2rem, 4vw, 3.7rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .file {
+      margin-top: 12px;
+      color: #cbd9df;
+      font-family: Consolas, "Courier New", monospace;
+      overflow-wrap: anywhere;
+    }
+    .badge {
+      min-width: 128px;
+      border-radius: 8px;
+      padding: 14px 16px;
+      text-align: center;
+      font-weight: 900;
+      background: var(--soft-green);
+      color: var(--ok);
+    }
+    .badge.erro {
+      background: var(--soft-red);
+      color: var(--warn);
+    }
+    main { padding: 24px 0 44px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .metric, .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 32px rgba(24, 33, 42, .08);
+    }
+    .metric { min-height: 86px; padding: 15px; }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.42rem;
+      overflow-wrap: anywhere;
+    }
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .panel h2 { margin-bottom: 12px; font-size: 1.14rem; }
+    .error-panel { background: var(--soft-red); border-color: #e8afa8; }
+    .ok-panel { background: var(--soft-green); border-color: #add9c6; }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+      gap: 18px;
+      align-items: start;
+    }
+    .code-box {
+      max-height: 580px;
+      overflow: auto;
+      border-radius: 8px;
+      background: #101820;
+      color: #edf5f3;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: .92rem;
+    }
+    .code-line {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      min-height: 26px;
+    }
+    .code-line span {
+      padding: 3px 12px;
+      color: #8fa29b;
+      text-align: right;
+      border-right: 1px solid rgba(255,255,255,.12);
+      user-select: none;
+    }
+    .code-line code { padding: 3px 14px; white-space: pre; }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      max-height: 560px;
+    }
+    table {
+      width: 100%;
+      min-width: 760px;
+      border-collapse: collapse;
+      font-size: .9rem;
+    }
+    th, td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      color: var(--muted);
+      background: #f7f9fb;
+      font-size: .74rem;
+      text-transform: uppercase;
+    }
+    td { font-family: Consolas, "Courier New", monospace; }
+    tr:last-child td { border-bottom: 0; }
+    .requirements td:last-child { background: var(--soft-blue); }
+    @media (max-width: 900px) {
+      .hero, .layout, .metrics { grid-template-columns: 1fr; }
+      .badge { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">Compilador LangC#</div>
+        <h1>Relatorio de Analise</h1>
+        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\1_simples_ok.txt</p>
+      </div>
+      <div class="badge ok">OK</div>
+    </div>
+  </header>
+  <main class="wrap">
+    <section class="metrics">
+      <div class="metric"><span>Fase</span><strong>semantica</strong></div>
+      <div class="metric"><span>Tokens</span><strong>21</strong></div>
+      <div class="metric"><span>Passos sintaticos</span><strong>71</strong></div>
+      <div class="metric"><span>Simbolos</span><strong>2</strong></div>
+    </section>
+    <section class="panel ok-panel">
+      <h2>Diagnostico</h2>
+      <p>Compilacao concluida sem erros lexicos, sintaticos ou semanticos.</p>
+    </section>
+    <section class="layout">
+      <div>
+        <section class="panel">
+          <h2>Codigo-fonte</h2>
+          <div class="code-box"><div class="code-line"><span>1</span><code>ç@ Exemplo 1: programa simples</code></div><div class="code-line"><span>2</span><code>   Demonstra variaveis, atribuicao, print e return @ç</code></div><div class="code-line"><span>3</span><code></code></div><div class="code-line"><span>4</span><code>int main() {</code></div><div class="code-line"><span>5</span><code>    int x;</code></div><div class="code-line"><span>6</span><code>    x = 10;</code></div><div class="code-line"><span>7</span><code>    print(x);</code></div><div class="code-line"><span>8</span><code>    return 0;</code></div><div class="code-line"><span>9</span><code>}</code></div></div>
+        </section>
+        <section class="panel">
+          <h2>Tokens</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Codigo</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Coluna</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>1</td></tr><tr><td>2</td><td>8</td><td>ID</td><td>main</td><td>4</td><td>5</td></tr><tr><td>3</td><td>21</td><td>LPAREN</td><td>(</td><td>4</td><td>9</td></tr><tr><td>4</td><td>22</td><td>RPAREN</td><td>)</td><td>4</td><td>10</td></tr><tr><td>5</td><td>23</td><td>LBRACE</td><td>{</td><td>4</td><td>12</td></tr><tr><td>6</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>5</td></tr><tr><td>7</td><td>8</td><td>ID</td><td>x</td><td>5</td><td>9</td></tr><tr><td>8</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>10</td></tr><tr><td>9</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>5</td></tr><tr><td>10</td><td>10</td><td>ASSIGN</td><td>=</td><td>6</td><td>7</td></tr><tr><td>11</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>9</td></tr><tr><td>12</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>11</td></tr><tr><td>13</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>5</td></tr><tr><td>14</td><td>21</td><td>LPAREN</td><td>(</td><td>7</td><td>10</td></tr><tr><td>15</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>11</td></tr><tr><td>16</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>12</td></tr><tr><td>17</td><td>26</td><td>SEMICOLON</td><td>;</td><td>7</td><td>13</td></tr><tr><td>18</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>5</td></tr><tr><td>19</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>12</td></tr><tr><td>20</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>13</td></tr><tr><td>21</td><td>24</td><td>RBRACE</td><td>}</td><td>9</td><td>1</td></tr></tbody></table></div>
+        </section>
+      </div>
+      <div>
+        <section class="panel requirements">
+          <h2>Requisitos dos PDFs</h2>
+          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.</td><td>Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra a tabela completa com constantes, funcoes, parametros e variaveis.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Inserir const global como Categoria constante e Nivel 0.</td><td>Declaracoes const antes das funcoes entram como simbolos globais.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Valor de const nao pode ser alterado; mostrar linha e erro semantico.</td><td>Atribuicao para simbolo constante gera ErroSemantico com linha.</td></tr></tbody></table></div>
+        </section>
+        <section class="panel">
+          <h2>Tabela de simbolos</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Nome</th><th>Categoria</th><th>Tipo</th><th>Nivel</th><th>Linha</th><th>Escopo</th><th>Parametros</th></tr></thead><tbody><tr><td>1</td><td>main</td><td>funcao</td><td>int</td><td>0</td><td>4</td><td>global</td><td></td></tr><tr><td>2</td><td>x</td><td>variavel</td><td>int</td><td>1</td><td>5</td><td>main</td><td></td></tr></tbody></table></div>
+        </section>
+        <section class="panel">
+          <h2>Eventos semanticos</h2>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Etapa</th><th>Detalhe</th><th>Linha</th><th>Status</th></tr></thead><tbody><tr><td>1</td><td>Preparar tabela</td><td>Criada a tabela de simbolos com Nome, Categoria, Tipo e Nivel, conforme AcoesSemantico.pdf.</td><td></td><td>OK</td></tr><tr><td>2</td><td>Declarar funcao</td><td>Funcao &#x27;main&#x27; registrada no nivel 0 com retorno int.</td><td>4</td><td>OK</td></tr><tr><td>3</td><td>Declarar variavel</td><td>Variavel &#x27;x&#x27; registrada no nivel 1 com tipo int.</td><td>5</td><td>OK</td></tr><tr><td>4</td><td>Consultar tabela</td><td>Token &#x27;x&#x27; antes de &#x27;=&#x27;; consultar categoria na tabela de simbolos.</td><td>6</td><td>OK</td></tr><tr><td>5</td><td>Checar atribuicao</td><td>Atribuicao para &#x27;x&#x27; permitida: int recebe int.</td><td>6</td><td>OK</td></tr><tr><td>6</td><td>Consultar tabela</td><td>Uso de &#x27;x&#x27; encontrado como variavel do tipo int.</td><td>7</td><td>OK</td></tr><tr><td>7</td><td>Checar print</td><td>print recebe expressao do tipo int.</td><td>7</td><td>OK</td></tr><tr><td>8</td><td>Checar return</td><td>Return da funcao &#x27;main&#x27; compativel: int.</td><td>8</td><td>OK</td></tr><tr><td>9</td><td>Resultado</td><td>Analise semantica concluida sem erros.</td><td></td><td>OK</td></tr></tbody></table></div>
+        </section>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Execucao sintatica tabular</h2>
+      <div class="table-wrap"><table><thead><tr><th>Passo</th><th>CodTok</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Pilha</th><th>Acao</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>PROGRAM $</td><td>Usa 1: PROGRAM -&gt; CONST_DECL_LIST_OPT FUNCTION_LIST</td></tr><tr><td>2</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>CONST_DECL_LIST_OPT FUNCTION_LIST $</td><td>Usa 3: CONST_DECL_LIST_OPT -&gt; epsilon</td></tr><tr><td>3</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>FUNCTION_LIST $</td><td>Usa 5: FUNCTION_LIST -&gt; FUNCTION FUNCTION_LIST_TAIL</td></tr><tr><td>4</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>FUNCTION FUNCTION_LIST_TAIL $</td><td>Usa 8: FUNCTION -&gt; TYPE id ( PARAM_LIST_OPT ) BLOCK</td></tr><tr><td>5</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>TYPE id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 9: TYPE -&gt; int</td></tr><tr><td>6</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>int id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome int</td></tr><tr><td>7</td><td>8</td><td>ID</td><td>main</td><td>4</td><td>id ( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>8</td><td>21</td><td>LPAREN</td><td>(</td><td>4</td><td>( PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome (</td></tr><tr><td>9</td><td>22</td><td>RPAREN</td><td>)</td><td>4</td><td>PARAM_LIST_OPT ) BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 12: PARAM_LIST_OPT -&gt; epsilon</td></tr><tr><td>10</td><td>22</td><td>RPAREN</td><td>)</td><td>4</td><td>) BLOCK FUNCTION_LIST_TAIL $</td><td>Consome )</td></tr><tr><td>11</td><td>23</td><td>LBRACE</td><td>{</td><td>4</td><td>BLOCK FUNCTION_LIST_TAIL $</td><td>Usa 17: BLOCK -&gt; { DECL_LIST_OPT STMT_LIST_OPT }</td></tr><tr><td>12</td><td>23</td><td>LBRACE</td><td>{</td><td>4</td><td>{ DECL_LIST_OPT STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Consome {</td></tr><tr><td>13</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>DECL_LIST_OPT STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 18: DECL_LIST_OPT -&gt; DECL_LIST</td></tr><tr><td>14</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>DECL_LIST STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 20: DECL_LIST -&gt; VAR_DECL DECL_LIST_TAIL</td></tr><tr><td>15</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>VAR_DECL DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 23: VAR_DECL -&gt; TYPE id ;</td></tr><tr><td>16</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>TYPE id ; DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 9: TYPE -&gt; int</td></tr><tr><td>17</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>int id ; DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Consome int</td></tr><tr><td>18</td><td>8</td><td>ID</td><td>x</td><td>5</td><td>id ; DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>19</td><td>26</td><td>SEMICOLON</td><td>;</td><td>5</td><td>; DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>20</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>DECL_LIST_TAIL STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 22: DECL_LIST_TAIL -&gt; epsilon</td></tr><tr><td>21</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>STMT_LIST_OPT } FUNCTION_LIST_TAIL $</td><td>Usa 24: STMT_LIST_OPT -&gt; STMT_LIST</td></tr><tr><td>22</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>STMT_LIST } FUNCTION_LIST_TAIL $</td><td>Usa 26: STMT_LIST -&gt; STMT STMT_LIST_TAIL</td></tr><tr><td>23</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 29: STMT -&gt; ASSIGN_STMT</td></tr><tr><td>24</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>ASSIGN_STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 35: ASSIGN_STMT -&gt; id = EXPR ;</td></tr><tr><td>25</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>id = EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>26</td><td>10</td><td>ASSIGN</td><td>=</td><td>6</td><td>= EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome =</td></tr><tr><td>27</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>28</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>REL_EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>29</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>ADD_EXPR REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>30</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>31</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 62: FACTOR -&gt; num</td></tr><tr><td>32</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>num MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome num</td></tr><tr><td>33</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>34</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>35</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>36</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>37</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 27: STMT_LIST_TAIL -&gt; STMT STMT_LIST_TAIL</td></tr><tr><td>38</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 32: STMT -&gt; PRINT_STMT</td></tr><tr><td>39</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>PRINT_STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 37: PRINT_STMT -&gt; print ( EXPR ) ;</td></tr><tr><td>40</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>print ( EXPR ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome print</td></tr><tr><td>41</td><td>21</td><td>LPAREN</td><td>(</td><td>7</td><td>( EXPR ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome (</td></tr><tr><td>42</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>EXPR ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>43</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>REL_EXPR ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>44</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>ADD_EXPR REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>45</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>46</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 61: FACTOR -&gt; id FACTOR_TAIL</td></tr><tr><td>47</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>id FACTOR_TAIL MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome id</td></tr><tr><td>48</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>FACTOR_TAIL MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 64: FACTOR_TAIL -&gt; epsilon</td></tr><tr><td>49</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>50</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>51</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>REL_EXPR_TAIL ) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>52</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>) ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome )</td></tr><tr><td>53</td><td>26</td><td>SEMICOLON</td><td>;</td><td>7</td><td>; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>54</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 27: STMT_LIST_TAIL -&gt; STMT STMT_LIST_TAIL</td></tr><tr><td>55</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 33: STMT -&gt; RETURN_STMT</td></tr><tr><td>56</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>RETURN_STMT STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 36: RETURN_STMT -&gt; return EXPR ;</td></tr><tr><td>57</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>return EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome return</td></tr><tr><td>58</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 42: EXPR -&gt; REL_EXPR</td></tr><tr><td>59</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>REL_EXPR ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 43: REL_EXPR -&gt; ADD_EXPR REL_EXPR_TAIL</td></tr><tr><td>60</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>ADD_EXPR REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 52: ADD_EXPR -&gt; MUL_EXPR ADD_EXPR_TAIL</td></tr><tr><td>61</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>MUL_EXPR ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 56: MUL_EXPR -&gt; FACTOR MUL_EXPR_TAIL</td></tr><tr><td>62</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>FACTOR MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 62: FACTOR -&gt; num</td></tr><tr><td>63</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>num MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome num</td></tr><tr><td>64</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>MUL_EXPR_TAIL ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 59: MUL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>65</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>ADD_EXPR_TAIL REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 55: ADD_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>66</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>REL_EXPR_TAIL ; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 45: REL_EXPR_TAIL -&gt; epsilon</td></tr><tr><td>67</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>; STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Consome ;</td></tr><tr><td>68</td><td>24</td><td>RBRACE</td><td>}</td><td>9</td><td>STMT_LIST_TAIL } FUNCTION_LIST_TAIL $</td><td>Usa 28: STMT_LIST_TAIL -&gt; epsilon</td></tr><tr><td>69</td><td>24</td><td>RBRACE</td><td>}</td><td>9</td><td>} FUNCTION_LIST_TAIL $</td><td>Consome }</td></tr><tr><td>70</td><td>27</td><td>EOF</td><td>$</td><td>10</td><td>FUNCTION_LIST_TAIL $</td><td>Usa 7: FUNCTION_LIST_TAIL -&gt; epsilon</td></tr><tr><td>71</td><td>27</td><td>EOF</td><td>$</td><td>10</td><td>$</td><td>Consome $</td></tr></tbody></table></div>
+    </section>
+  </main>
+</body>
+</html>

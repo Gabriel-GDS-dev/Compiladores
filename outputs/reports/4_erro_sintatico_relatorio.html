@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\3_erro_lexico.txt</title>
+  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\4_erro_sintatico.txt</title>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -185,31 +185,31 @@
       <div>
         <div class="eyebrow">Compilador LangC#</div>
         <h1>Relatorio de Analise</h1>
-        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\3_erro_lexico.txt</p>
+        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\4_erro_sintatico.txt</p>
       </div>
       <div class="badge erro">ERRO</div>
     </div>
   </header>
   <main class="wrap">
     <section class="metrics">
-      <div class="metric"><span>Fase</span><strong>lexica</strong></div>
-      <div class="metric"><span>Tokens</span><strong>0</strong></div>
+      <div class="metric"><span>Fase</span><strong>sintatica</strong></div>
+      <div class="metric"><span>Tokens</span><strong>20</strong></div>
       <div class="metric"><span>Passos sintaticos</span><strong>0</strong></div>
       <div class="metric"><span>Simbolos</span><strong>0</strong></div>
     </section>
     <section class="panel error-panel">
       <h2>Diagnostico</h2>
-      <p>Linha 3: operador invalido &#x27;@&#x27;; &#x27;@&#x27; isolado nao pertence a linguagem</p>
+      <p>Linha 5: faltou &#x27;;&#x27; ao final da instrucao antes de &#x27;x&#x27;</p>
     </section>
     <section class="layout">
       <div>
         <section class="panel">
           <h2>Codigo-fonte</h2>
-          <div class="code-box"><div class="code-line"><span>1</span><code>int main() {</code></div><div class="code-line"><span>2</span><code>    int x;</code></div><div class="code-line"><span>3</span><code>    x = 10 @ 2;</code></div><div class="code-line"><span>4</span><code>    print(x);</code></div><div class="code-line"><span>5</span><code>    return 0;</code></div><div class="code-line"><span>6</span><code>}</code></div></div>
+          <div class="code-box"><div class="code-line"><span>1</span><code>ç# Exemplo 4: erro sintatico proposital</code></div><div class="code-line"><span>2</span><code>ç@ Falta o ponto-e-virgula na declaracao de x @ç</code></div><div class="code-line"><span>3</span><code></code></div><div class="code-line"><span>4</span><code>int main() {</code></div><div class="code-line"><span>5</span><code>    int x</code></div><div class="code-line"><span>6</span><code>    x = 10;</code></div><div class="code-line"><span>7</span><code>    print(x);</code></div><div class="code-line"><span>8</span><code>    return 0;</code></div><div class="code-line"><span>9</span><code>}</code></div></div>
         </section>
         <section class="panel">
           <h2>Tokens</h2>
-          <div class="table-wrap"><table><thead><tr><th>#</th><th>Codigo</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Coluna</th></tr></thead><tbody><tr><td colspan="6">Nenhum registro.</td></tr></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>#</th><th>Codigo</th><th>Token</th><th>Lexema</th><th>Linha</th><th>Coluna</th></tr></thead><tbody><tr><td>1</td><td>1</td><td>INT</td><td>int</td><td>4</td><td>1</td></tr><tr><td>2</td><td>8</td><td>ID</td><td>main</td><td>4</td><td>5</td></tr><tr><td>3</td><td>21</td><td>LPAREN</td><td>(</td><td>4</td><td>9</td></tr><tr><td>4</td><td>22</td><td>RPAREN</td><td>)</td><td>4</td><td>10</td></tr><tr><td>5</td><td>23</td><td>LBRACE</td><td>{</td><td>4</td><td>12</td></tr><tr><td>6</td><td>1</td><td>INT</td><td>int</td><td>5</td><td>5</td></tr><tr><td>7</td><td>8</td><td>ID</td><td>x</td><td>5</td><td>9</td></tr><tr><td>8</td><td>8</td><td>ID</td><td>x</td><td>6</td><td>5</td></tr><tr><td>9</td><td>10</td><td>ASSIGN</td><td>=</td><td>6</td><td>7</td></tr><tr><td>10</td><td>9</td><td>NUM</td><td>10</td><td>6</td><td>9</td></tr><tr><td>11</td><td>26</td><td>SEMICOLON</td><td>;</td><td>6</td><td>11</td></tr><tr><td>12</td><td>7</td><td>PRINT</td><td>print</td><td>7</td><td>5</td></tr><tr><td>13</td><td>21</td><td>LPAREN</td><td>(</td><td>7</td><td>10</td></tr><tr><td>14</td><td>8</td><td>ID</td><td>x</td><td>7</td><td>11</td></tr><tr><td>15</td><td>22</td><td>RPAREN</td><td>)</td><td>7</td><td>12</td></tr><tr><td>16</td><td>26</td><td>SEMICOLON</td><td>;</td><td>7</td><td>13</td></tr><tr><td>17</td><td>6</td><td>RETURN</td><td>return</td><td>8</td><td>5</td></tr><tr><td>18</td><td>9</td><td>NUM</td><td>0</td><td>8</td><td>12</td></tr><tr><td>19</td><td>26</td><td>SEMICOLON</td><td>;</td><td>8</td><td>13</td></tr><tr><td>20</td><td>24</td><td>RBRACE</td><td>}</td><td>9</td><td>1</td></tr></tbody></table></div>
         </section>
       </div>
       <div>

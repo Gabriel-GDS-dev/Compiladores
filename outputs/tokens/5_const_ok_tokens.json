@@ -82,5 +82,189 @@
     7,
     7,
     8
+  ],
+  "detalhes": [
+    {
+      "codigo": 28,
+      "token": "CONST",
+      "lexema": "const",
+      "linha": 1,
+      "coluna": 1
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "limite",
+      "linha": 1,
+      "coluna": 7
+    },
+    {
+      "codigo": 10,
+      "token": "ASSIGN",
+      "lexema": "=",
+      "linha": 1,
+      "coluna": 14
+    },
+    {
+      "codigo": 9,
+      "token": "NUM",
+      "lexema": "10",
+      "linha": 1,
+      "coluna": 16
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 1,
+      "coluna": 18
+    },
+    {
+      "codigo": 1,
+      "token": "INT",
+      "lexema": "int",
+      "linha": 3,
+      "coluna": 1
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "main",
+      "linha": 3,
+      "coluna": 5
+    },
+    {
+      "codigo": 21,
+      "token": "LPAREN",
+      "lexema": "(",
+      "linha": 3,
+      "coluna": 9
+    },
+    {
+      "codigo": 22,
+      "token": "RPAREN",
+      "lexema": ")",
+      "linha": 3,
+      "coluna": 10
+    },
+    {
+      "codigo": 23,
+      "token": "LBRACE",
+      "lexema": "{",
+      "linha": 3,
+      "coluna": 12
+    },
+    {
+      "codigo": 1,
+      "token": "INT",
+      "lexema": "int",
+      "linha": 4,
+      "coluna": 5
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "x",
+      "linha": 4,
+      "coluna": 9
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 4,
+      "coluna": 10
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "x",
+      "linha": 5,
+      "coluna": 5
+    },
+    {
+      "codigo": 10,
+      "token": "ASSIGN",
+      "lexema": "=",
+      "linha": 5,
+      "coluna": 7
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "limite",
+      "linha": 5,
+      "coluna": 9
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 5,
+      "coluna": 15
+    },
+    {
+      "codigo": 7,
+      "token": "PRINT",
+      "lexema": "print",
+      "linha": 6,
+      "coluna": 5
+    },
+    {
+      "codigo": 21,
+      "token": "LPAREN",
+      "lexema": "(",
+      "linha": 6,
+      "coluna": 10
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "x",
+      "linha": 6,
+      "coluna": 11
+    },
+    {
+      "codigo": 22,
+      "token": "RPAREN",
+      "lexema": ")",
+      "linha": 6,
+      "coluna": 12
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 6,
+      "coluna": 13
+    },
+    {
+      "codigo": 6,
+      "token": "RETURN",
+      "lexema": "return",
+      "linha": 7,
+      "coluna": 5
+    },
+    {
+      "codigo": 9,
+      "token": "NUM",
+      "lexema": "0",
+      "linha": 7,
+      "coluna": 12
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 7,
+      "coluna": 13
+    },
+    {
+      "codigo": 24,
+      "token": "RBRACE",
+      "lexema": "}",
+      "linha": 8,
+      "coluna": 1
+    }
   ]
 }

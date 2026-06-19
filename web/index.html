@@ -3,139 +3,285 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Analise Sintatica LL(1)</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <script src="assets/js/script.js" defer></script>
+  <title>Compilador LangC#</title>
+  <style>
+    :root {
+      --bg: #f4f6f8;
+      --surface: #ffffff;
+      --ink: #18212a;
+      --muted: #637181;
+      --line: #d8e0e7;
+      --accent: #176b87;
+      --ok: #227252;
+      --error: #b84838;
+      --soft-blue: #e8f2f6;
+      --soft-green: #e5f4ed;
+      --soft-red: #fde9e5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      background: #17242d;
+      color: #f8fbfc;
+      border-bottom: 5px solid var(--accent);
+    }
+
+    .wrap {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .hero {
+      min-height: 230px;
+      display: grid;
+      align-items: end;
+      padding: 34px 0 30px;
+    }
+
+    .eyebrow {
+      color: #9bd3df;
+      font-size: .78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      margin-top: 8px;
+      font-size: clamp(2.2rem, 4.5vw, 4.2rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin-top: 14px;
+      color: #d5e2e8;
+      font-size: 1.02rem;
+    }
+
+    main {
+      padding: 24px 0 44px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric,
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 14px 32px rgba(24, 33, 42, .08);
+    }
+
+    .metric {
+      min-height: 88px;
+      padding: 15px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: .76rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 7px;
+      font-size: 1.35rem;
+    }
+
+    .panel {
+      padding: 18px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .panel h2 {
+      margin-bottom: 12px;
+      font-size: 1.14rem;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      font-size: .94rem;
+    }
+
+    th,
+    td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      background: #f7f9fb;
+      font-size: .76rem;
+      text-transform: uppercase;
+    }
+
+    td {
+      font-family: Consolas, "Courier New", monospace;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    a {
+      color: var(--accent);
+      font-weight: 800;
+      text-decoration-thickness: 2px;
+    }
+
+    .status {
+      display: inline-flex;
+      min-width: 82px;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-weight: 900;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    .ok {
+      background: var(--soft-green);
+      color: var(--ok);
+    }
+
+    .error {
+      background: var(--soft-red);
+      color: var(--error);
+    }
+
+    .info {
+      background: var(--soft-blue);
+    }
+
+    @media (max-width: 840px) {
+      .metrics {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
-  <header class="app-header">
-    <div class="header-inner">
-      <div class="brand-block">
-        <span class="eyebrow">Atividade de Compiladores</span>
-        <h1>Analise Sintatica LL(1)</h1>
-        <p>Resolucao da gramatica S -> cAa, com FIRST/FOLLOW, tabela parser e pilha para a sentenca cbca.</p>
-      </div>
-
-      <div class="diagram-panel" aria-label="Fluxo visual do analisador">
-        <svg viewBox="0 0 560 220" role="img" aria-labelledby="diagram-title diagram-desc">
-          <title id="diagram-title">Fluxo do parser LL(1)</title>
-          <desc id="diagram-desc">A pilha e a entrada consultam a tabela parser para escolher uma producao.</desc>
-          <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z"></path>
-            </marker>
-          </defs>
-          <rect class="diagram-box box-stack" x="24" y="28" width="140" height="58" rx="8"></rect>
-          <text x="94" y="62" text-anchor="middle">Pilha</text>
-          <rect class="diagram-box box-input" x="24" y="132" width="140" height="58" rx="8"></rect>
-          <text x="94" y="166" text-anchor="middle">Entrada</text>
-          <rect class="diagram-box box-table" x="222" y="80" width="142" height="64" rx="8"></rect>
-          <text x="293" y="106" text-anchor="middle">Tabela M</text>
-          <text class="diagram-small" x="293" y="128" text-anchor="middle">topo, simbolo</text>
-          <rect class="diagram-box box-prod" x="414" y="80" width="122" height="64" rx="8"></rect>
-          <text x="475" y="107" text-anchor="middle">Producao</text>
-          <text class="diagram-small" x="475" y="129" text-anchor="middle">ou consome</text>
-          <path class="diagram-line" d="M164 57 C190 58 198 82 222 95"></path>
-          <path class="diagram-line" d="M164 160 C190 158 198 136 222 126"></path>
-          <path class="diagram-line" d="M364 112 L414 112"></path>
-          <path class="diagram-line diagram-return" d="M475 80 C452 25 269 18 136 28"></path>
-        </svg>
+  <header>
+    <div class="wrap hero">
+      <div>
+        <div class="eyebrow">Trabalho final de Compiladores</div>
+        <h1>Compilador LangC#</h1>
+        <p class="subtitle">Analise lexica, sintatica tabular LL(1), tabela de simbolos e validacoes semanticas em relatorios HTML.</p>
       </div>
     </div>
   </header>
 
-  <main class="page-shell">
-    <section class="analysis-band" aria-labelledby="analysis-title">
-      <div class="control-panel">
-        <span class="section-kicker">Entrada</span>
-        <h2 id="analysis-title">Testar sentenca</h2>
-        <form id="sentence-form" class="sentence-form">
-          <label for="sentence-input">Sentenca</label>
-          <div class="input-row">
-            <input id="sentence-input" name="sentence" value="cbca" autocomplete="off" spellcheck="false">
-            <button class="primary-action" type="submit">Analisar</button>
-          </div>
-          <button class="secondary-action" id="example-button" type="button">Voltar para cbca</button>
-        </form>
-
-        <div class="grammar-list" aria-label="Producoes da gramatica">
-          <span class="section-kicker">Gramatica</span>
-          <div id="productions"></div>
-        </div>
-      </div>
-
-      <div class="result-panel">
-        <div class="result-topline">
-          <div>
-            <span class="section-kicker">Resultado</span>
-            <h2 id="result-title">Sentenca aceita</h2>
-          </div>
-          <span id="result-badge" class="result-badge accepted">Aceita</span>
-        </div>
-
-        <div class="summary-strip" id="summary-strip"></div>
-
-        <div class="derivation-block">
-          <div class="section-heading">
-            <span class="section-kicker">Derivacao</span>
-            <h3>Caminho aplicado</h3>
-          </div>
-          <div id="derivation-ribbon" class="derivation-ribbon"></div>
-        </div>
-
-        <div class="table-section">
-          <div class="section-heading">
-            <span class="section-kicker">Execucao</span>
-            <h3>Passos da analise</h3>
-          </div>
-          <div class="table-wrap">
-            <table id="steps-table"></table>
-          </div>
-        </div>
-      </div>
+  <main class="wrap">
+    <section class="metrics">
+      <div class="metric"><span>Arquivo principal</span><strong>src/compilador.py</strong></div>
+      <div class="metric"><span>Execucao</span><strong>sem prompt</strong></div>
+      <div class="metric"><span>Relatorios</span><strong>HTML</strong></div>
+      <div class="metric"><span>Semantico</span><strong>const + tipos</strong></div>
     </section>
 
-    <section class="data-grid" aria-label="Tabelas da resolucao">
-      <div class="table-section">
-        <div class="section-heading">
-          <span class="section-kicker">Tabela</span>
-          <h3>FIRST e FOLLOW</h3>
-        </div>
-        <div class="table-wrap">
-          <table id="first-follow-table"></table>
-        </div>
-      </div>
-
-      <div class="table-section">
-        <div class="section-heading">
-          <span class="section-kicker">Tabela</span>
-          <h3>Parser LL(1)</h3>
-        </div>
-        <div class="table-wrap">
-          <table id="parser-table"></table>
-        </div>
-      </div>
-    </section>
-
-    <section class="table-section full-width">
-      <div class="section-heading">
-        <span class="section-kicker">Resolucao do PDF</span>
-        <h3>Pilha para cbca</h3>
-      </div>
+    <section class="panel">
+      <h2>Relatorios gerados</h2>
       <div class="table-wrap">
-        <table id="stack-table"></table>
+        <table>
+          <thead>
+            <tr>
+              <th>Entrada</th>
+              <th>Resultado esperado</th>
+              <th>Relatorio</th>
+              <th>JSON</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>examples/langc/1_simples_ok.txt</td>
+              <td><span class="status ok">OK</span></td>
+              <td><a href="../outputs/reports/1_simples_ok_relatorio.html">abrir HTML</a></td>
+              <td><a href="../outputs/tokens/1_simples_ok_tokens.json">tokens</a></td>
+            </tr>
+            <tr>
+              <td>examples/langc/2_longo_ok.txt</td>
+              <td><span class="status ok">OK</span></td>
+              <td><a href="../outputs/reports/2_longo_ok_relatorio.html">abrir HTML</a></td>
+              <td><a href="../outputs/tokens/2_longo_ok_tokens.json">tokens</a></td>
+            </tr>
+            <tr>
+              <td>examples/langc/3_erro_lexico.txt</td>
+              <td><span class="status error">LEXICO</span></td>
+              <td><a href="../outputs/reports/3_erro_lexico_relatorio.html">abrir HTML</a></td>
+              <td><span class="info status">n/a</span></td>
+            </tr>
+            <tr>
+              <td>examples/langc/4_erro_sintatico.txt</td>
+              <td><span class="status error">SINTATICO</span></td>
+              <td><a href="../outputs/reports/4_erro_sintatico_relatorio.html">abrir HTML</a></td>
+              <td><a href="../outputs/tokens/4_erro_sintatico_tokens.json">tokens</a></td>
+            </tr>
+            <tr>
+              <td>examples/semantico/5_const_ok.txt</td>
+              <td><span class="status ok">OK</span></td>
+              <td><a href="../outputs/reports/5_const_ok_relatorio.html">abrir HTML</a></td>
+              <td><a href="../outputs/tokens/5_const_ok_tokens.json">tokens</a></td>
+            </tr>
+            <tr>
+              <td>examples/semantico/6_erro_semantico_const.txt</td>
+              <td><span class="status error">SEMANTICO</span></td>
+              <td><a href="../outputs/reports/6_erro_semantico_const_relatorio.html">abrir HTML</a></td>
+              <td><a href="../outputs/tokens/6_erro_semantico_const_tokens.json">tokens</a></td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
-    <section class="support-band" aria-labelledby="support-title">
-      <div class="support-copy">
-        <span class="section-kicker">Material visual</span>
-        <h2 id="support-title">Apoio do projeto</h2>
-        <p>O site tambem deixa separado o automato salvo na pasta do trabalho, para consulta junto da resolucao sintatica.</p>
-      </div>
-      <figure class="support-image">
-        <img src="assets/images/automato.jpg" alt="Automato do projeto de compiladores">
-      </figure>
+    <section class="panel">
+      <h2>Indice completo</h2>
+      <p><a href="../outputs/reports/index.html">outputs/reports/index.html</a></p>
     </section>
   </main>
 </body>
