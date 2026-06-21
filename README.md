@@ -47,13 +47,13 @@ outputs/reports/index.html
 Compilar um arquivo especifico:
 
 ```bash
-python src/compilador.py examples/semantico/6_erro_semantico_const.txt
+python src/compilador.py examples/semantico/6_erro_semantico_tipo.txt
 ```
 
 Compilar uma string diretamente:
 
 ```bash
-python src/compilador.py --codigo "const limite = 10; int main() { return limite; }"
+python src/compilador.py --codigo "int main() { int x; x = 10; print(x); return x; }"
 ```
 
 Arquivos gerados:
@@ -86,10 +86,10 @@ python src/compilador.py --abrir-todos-html
 
 ## Regras atendidas
 
-- Lexico conforme o manual: identificadores ASCII ate 64 caracteres, numeros inteiros/reais, palavras reservadas, operadores e comentarios `ç#` e `ç@ ... @ç`.
+- Lexico conforme a gramatica e o manual: identificadores ASCII ate 64 caracteres, numeros inteiros/reais, palavras reservadas, operadores e comentarios `ç#` e `ç@ ... @ç`.
 - Sintatico preditivo tabular LL(1), com pilha e producoes registradas no relatorio.
-- Semantico conforme `AcoesSemantico.pdf`: tabela de simbolos com Nome, Categoria, Tipo e Nivel; `const` global como categoria `constante`; erro com linha quando uma constante recebe novo valor.
-- Semantico adicional para o trabalho final: uso antes de declaracao, escopo, funcoes, parametros, chamadas e incompatibilidade entre `int` e `float`.
+- Sintatico alinhado a gramatica do PDF: programa formado por lista de funcoes, blocos, declaracoes locais, atribuicao, `if/else`, `while`, `print`, `return`, expressoes e chamadas de funcao.
+- Semantico conforme a gramatica e o manual: tabela de simbolos com Nome, Categoria, Tipo e Nivel; uso antes de declaracao; escopos; funcoes; parametros; chamadas; `return`; e incompatibilidade entre `int` e `float`.
 
 ## Observacoes
 

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\4_erro_sintatico.txt</title>
+  <title>Compilador LangC# - C:\Users\User\Documents\GitHub\Compiladores\examples\langc\4_erro_sintatico.txt</title>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -185,7 +185,7 @@
       <div>
         <div class="eyebrow">Compilador LangC#</div>
         <h1>Relatorio de Analise</h1>
-        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores\examples\langc\4_erro_sintatico.txt</p>
+        <p class="file">C:\Users\User\Documents\GitHub\Compiladores\examples\langc\4_erro_sintatico.txt</p>
       </div>
       <div class="badge erro">ERRO</div>
     </div>
@@ -215,7 +215,7 @@
       <div>
         <section class="panel requirements">
           <h2>Requisitos dos PDFs</h2>
-          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.</td><td>Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra a tabela completa com constantes, funcoes, parametros e variaveis.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Inserir const global como Categoria constante e Nivel 0.</td><td>Declaracoes const antes das funcoes entram como simbolos globais.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Valor de const nao pode ser alterado; mostrar linha e erro semantico.</td><td>Atribuicao para simbolo constante gera ErroSemantico com linha.</td></tr></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.</td><td>Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra a tabela completa com funcoes, parametros e variaveis.</td></tr><tr><td>Gramática do PDF</td><td>Funcoes, parametros, variaveis locais, atribuicoes, chamadas e return.</td><td>Semantico valida declaracoes, escopos, compatibilidade de tipos e assinatura de chamadas.</td></tr><tr><td>Gramática do PDF</td><td>Erros semanticos devem apontar o erro e a linha.</td><td>Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.</td></tr></tbody></table></div>
         </section>
         <section class="panel">
           <h2>Tabela de simbolos</h2>

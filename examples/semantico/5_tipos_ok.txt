@@ -1,0 +1,12 @@
+int soma(int a, int b) {
+    int resultado;
+    resultado = a + b;
+    return resultado;
+}
+
+int main() {
+    int total;
+    total = soma(2, 3);
+    print(total);
+    return total;
+}

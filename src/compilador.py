@@ -5,7 +5,7 @@ Compilador LangC# em arquivo unico.
 Inclui:
 - analisador lexico conforme o manual da linguagem;
 - analisador sintatico preditivo tabular LL(1);
-- analisador semantico com tabela de simbolos, constantes, escopos e tipos;
+- analisador semantico com tabela de simbolos, escopos e tipos;
 - exportacao JSON de tokens;
 - relatorio HTML completo, sem prompt interativo.
 """
@@ -58,7 +58,6 @@ class TokenType(Enum):
     COMMA = 25
     SEMICOLON = 26
     EOF = 27
-    CONST = 28
 
 
 KEYWORDS = {
@@ -69,7 +68,6 @@ KEYWORDS = {
     "while": TokenType.WHILE,
     "return": TokenType.RETURN,
     "print": TokenType.PRINT,
-    "const": TokenType.CONST,
 }
 
 
@@ -81,7 +79,6 @@ TOKEN_TEXT = {
     TokenType.WHILE: "while",
     TokenType.RETURN: "return",
     TokenType.PRINT: "print",
-    TokenType.CONST: "const",
     TokenType.ID: "id",
     TokenType.NUM: "num",
     TokenType.ASSIGN: "=",
@@ -414,75 +411,72 @@ class Parser:
     EPSILON = "epsilon"
 
     PRODUCOES = {
-        1: ("PROGRAM", ["CONST_DECL_LIST_OPT", "FUNCTION_LIST"]),
-        2: ("CONST_DECL_LIST_OPT", ["CONST_DECL", "CONST_DECL_LIST_OPT"]),
-        3: ("CONST_DECL_LIST_OPT", []),
-        4: ("CONST_DECL", [TokenType.CONST, TokenType.ID, TokenType.ASSIGN, "EXPR", TokenType.SEMICOLON]),
-        5: ("FUNCTION_LIST", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
-        6: ("FUNCTION_LIST_TAIL", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
-        7: ("FUNCTION_LIST_TAIL", []),
-        8: ("FUNCTION", ["TYPE", TokenType.ID, TokenType.LPAREN, "PARAM_LIST_OPT", TokenType.RPAREN, "BLOCK"]),
-        9: ("TYPE", [TokenType.INT]),
-        10: ("TYPE", [TokenType.FLOAT]),
-        11: ("PARAM_LIST_OPT", ["PARAM_LIST"]),
-        12: ("PARAM_LIST_OPT", []),
-        13: ("PARAM_LIST", ["PARAM", "PARAM_LIST_TAIL"]),
-        14: ("PARAM_LIST_TAIL", [TokenType.COMMA, "PARAM", "PARAM_LIST_TAIL"]),
-        15: ("PARAM_LIST_TAIL", []),
-        16: ("PARAM", ["TYPE", TokenType.ID]),
-        17: ("BLOCK", [TokenType.LBRACE, "DECL_LIST_OPT", "STMT_LIST_OPT", TokenType.RBRACE]),
-        18: ("DECL_LIST_OPT", ["DECL_LIST"]),
-        19: ("DECL_LIST_OPT", []),
-        20: ("DECL_LIST", ["VAR_DECL", "DECL_LIST_TAIL"]),
-        21: ("DECL_LIST_TAIL", ["VAR_DECL", "DECL_LIST_TAIL"]),
-        22: ("DECL_LIST_TAIL", []),
-        23: ("VAR_DECL", ["TYPE", TokenType.ID, TokenType.SEMICOLON]),
-        24: ("STMT_LIST_OPT", ["STMT_LIST"]),
-        25: ("STMT_LIST_OPT", []),
-        26: ("STMT_LIST", ["STMT", "STMT_LIST_TAIL"]),
-        27: ("STMT_LIST_TAIL", ["STMT", "STMT_LIST_TAIL"]),
-        28: ("STMT_LIST_TAIL", []),
-        29: ("STMT", ["ASSIGN_STMT"]),
-        30: ("STMT", ["IF_STMT"]),
-        31: ("STMT", ["WHILE_STMT"]),
-        32: ("STMT", ["PRINT_STMT"]),
-        33: ("STMT", ["RETURN_STMT"]),
-        34: ("STMT", ["BLOCK"]),
-        35: ("ASSIGN_STMT", [TokenType.ID, TokenType.ASSIGN, "EXPR", TokenType.SEMICOLON]),
-        36: ("RETURN_STMT", [TokenType.RETURN, "EXPR", TokenType.SEMICOLON]),
-        37: ("PRINT_STMT", [TokenType.PRINT, TokenType.LPAREN, "EXPR", TokenType.RPAREN, TokenType.SEMICOLON]),
-        38: ("IF_STMT", [TokenType.IF, TokenType.LPAREN, "EXPR", TokenType.RPAREN, "STMT", "ELSE_PART"]),
-        39: ("ELSE_PART", [TokenType.ELSE, "STMT"]),
-        40: ("ELSE_PART", []),
-        41: ("WHILE_STMT", [TokenType.WHILE, TokenType.LPAREN, "EXPR", TokenType.RPAREN, "STMT"]),
-        42: ("EXPR", ["REL_EXPR"]),
-        43: ("REL_EXPR", ["ADD_EXPR", "REL_EXPR_TAIL"]),
-        44: ("REL_EXPR_TAIL", ["REL_OP", "ADD_EXPR"]),
-        45: ("REL_EXPR_TAIL", []),
-        46: ("REL_OP", [TokenType.EQ]),
-        47: ("REL_OP", [TokenType.NEQ]),
-        48: ("REL_OP", [TokenType.LT]),
-        49: ("REL_OP", [TokenType.GT]),
-        50: ("REL_OP", [TokenType.LEQ]),
-        51: ("REL_OP", [TokenType.GEQ]),
-        52: ("ADD_EXPR", ["MUL_EXPR", "ADD_EXPR_TAIL"]),
-        53: ("ADD_EXPR_TAIL", [TokenType.PLUS, "MUL_EXPR", "ADD_EXPR_TAIL"]),
-        54: ("ADD_EXPR_TAIL", [TokenType.MINUS, "MUL_EXPR", "ADD_EXPR_TAIL"]),
-        55: ("ADD_EXPR_TAIL", []),
-        56: ("MUL_EXPR", ["FACTOR", "MUL_EXPR_TAIL"]),
-        57: ("MUL_EXPR_TAIL", [TokenType.STAR, "FACTOR", "MUL_EXPR_TAIL"]),
-        58: ("MUL_EXPR_TAIL", [TokenType.SLASH, "FACTOR", "MUL_EXPR_TAIL"]),
-        59: ("MUL_EXPR_TAIL", []),
-        60: ("FACTOR", [TokenType.LPAREN, "EXPR", TokenType.RPAREN]),
-        61: ("FACTOR", [TokenType.ID, "FACTOR_TAIL"]),
-        62: ("FACTOR", [TokenType.NUM]),
-        63: ("FACTOR_TAIL", [TokenType.LPAREN, "ARG_LIST_OPT", TokenType.RPAREN]),
-        64: ("FACTOR_TAIL", []),
-        65: ("ARG_LIST_OPT", ["ARG_LIST"]),
-        66: ("ARG_LIST_OPT", []),
-        67: ("ARG_LIST", ["EXPR", "ARG_LIST_TAIL"]),
-        68: ("ARG_LIST_TAIL", [TokenType.COMMA, "EXPR", "ARG_LIST_TAIL"]),
-        69: ("ARG_LIST_TAIL", []),
+        1: ("PROGRAM", ["FUNCTION_LIST"]),
+        2: ("FUNCTION_LIST", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
+        3: ("FUNCTION_LIST_TAIL", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
+        4: ("FUNCTION_LIST_TAIL", []),
+        5: ("FUNCTION", ["TYPE", TokenType.ID, TokenType.LPAREN, "PARAM_LIST_OPT", TokenType.RPAREN, "BLOCK"]),
+        6: ("PARAM_LIST_OPT", ["PARAM_LIST"]),
+        7: ("PARAM_LIST_OPT", []),
+        8: ("PARAM_LIST", ["PARAM", "PARAM_LIST_TAIL"]),
+        9: ("PARAM_LIST_TAIL", [TokenType.COMMA, "PARAM", "PARAM_LIST_TAIL"]),
+        10: ("PARAM_LIST_TAIL", []),
+        11: ("PARAM", ["TYPE", TokenType.ID]),
+        12: ("BLOCK", [TokenType.LBRACE, "DECL_LIST_OPT", "STMT_LIST_OPT", TokenType.RBRACE]),
+        13: ("DECL_LIST_OPT", ["DECL_LIST"]),
+        14: ("DECL_LIST_OPT", []),
+        15: ("DECL_LIST", ["VAR_DECL", "DECL_LIST_TAIL"]),
+        16: ("DECL_LIST_TAIL", ["VAR_DECL", "DECL_LIST_TAIL"]),
+        17: ("DECL_LIST_TAIL", []),
+        18: ("VAR_DECL", ["TYPE", TokenType.ID, TokenType.SEMICOLON]),
+        19: ("STMT_LIST_OPT", ["STMT_LIST"]),
+        20: ("STMT_LIST_OPT", []),
+        21: ("STMT_LIST", ["STMT", "STMT_LIST_TAIL"]),
+        22: ("STMT_LIST_TAIL", ["STMT", "STMT_LIST_TAIL"]),
+        23: ("STMT_LIST_TAIL", []),
+        24: ("STMT", ["ASSIGN_STMT"]),
+        25: ("STMT", ["IF_STMT"]),
+        26: ("STMT", ["WHILE_STMT"]),
+        27: ("STMT", ["PRINT_STMT"]),
+        28: ("STMT", ["RETURN_STMT"]),
+        29: ("STMT", ["BLOCK"]),
+        30: ("ASSIGN_STMT", [TokenType.ID, TokenType.ASSIGN, "EXPR", TokenType.SEMICOLON]),
+        31: ("RETURN_STMT", [TokenType.RETURN, "EXPR", TokenType.SEMICOLON]),
+        32: ("PRINT_STMT", [TokenType.PRINT, TokenType.LPAREN, "EXPR", TokenType.RPAREN, TokenType.SEMICOLON]),
+        33: ("IF_STMT", [TokenType.IF, TokenType.LPAREN, "EXPR", TokenType.RPAREN, "STMT", "ELSE_PART"]),
+        34: ("ELSE_PART", [TokenType.ELSE, "STMT"]),
+        35: ("ELSE_PART", []),
+        36: ("WHILE_STMT", [TokenType.WHILE, TokenType.LPAREN, "EXPR", TokenType.RPAREN, "STMT"]),
+        37: ("EXPR", ["REL_EXPR"]),
+        38: ("REL_EXPR", ["ADD_EXPR", "REL_EXPR_TAIL"]),
+        39: ("REL_EXPR_TAIL", ["REL_OP", "ADD_EXPR"]),
+        40: ("REL_EXPR_TAIL", []),
+        41: ("REL_OP", [TokenType.EQ]),
+        42: ("REL_OP", [TokenType.NEQ]),
+        43: ("REL_OP", [TokenType.LT]),
+        44: ("REL_OP", [TokenType.GT]),
+        45: ("REL_OP", [TokenType.LEQ]),
+        46: ("REL_OP", [TokenType.GEQ]),
+        47: ("ADD_EXPR", ["MUL_EXPR", "ADD_EXPR_TAIL"]),
+        48: ("ADD_EXPR_TAIL", [TokenType.PLUS, "MUL_EXPR", "ADD_EXPR_TAIL"]),
+        49: ("ADD_EXPR_TAIL", [TokenType.MINUS, "MUL_EXPR", "ADD_EXPR_TAIL"]),
+        50: ("ADD_EXPR_TAIL", []),
+        51: ("MUL_EXPR", ["FACTOR", "MUL_EXPR_TAIL"]),
+        52: ("MUL_EXPR_TAIL", [TokenType.STAR, "FACTOR", "MUL_EXPR_TAIL"]),
+        53: ("MUL_EXPR_TAIL", [TokenType.SLASH, "FACTOR", "MUL_EXPR_TAIL"]),
+        54: ("MUL_EXPR_TAIL", []),
+        55: ("FACTOR", [TokenType.LPAREN, "EXPR", TokenType.RPAREN]),
+        56: ("FACTOR", [TokenType.ID, "FACTOR_TAIL"]),
+        57: ("FACTOR", [TokenType.NUM]),
+        58: ("FACTOR_TAIL", [TokenType.LPAREN, "ARG_LIST_OPT", TokenType.RPAREN]),
+        59: ("FACTOR_TAIL", []),
+        60: ("ARG_LIST_OPT", ["ARG_LIST"]),
+        61: ("ARG_LIST_OPT", []),
+        62: ("ARG_LIST", ["EXPR", "ARG_LIST_TAIL"]),
+        63: ("ARG_LIST_TAIL", [TokenType.COMMA, "EXPR", "ARG_LIST_TAIL"]),
+        64: ("ARG_LIST_TAIL", []),
+        65: ("TYPE", [TokenType.INT]),
+        66: ("TYPE", [TokenType.FLOAT]),
     }
 
     NAO_TERMINAIS = {esquerda for esquerda, _ in PRODUCOES.values()}
@@ -513,75 +507,72 @@ class Parser:
             for terminal in terminais:
                 tabela[(nao_terminal, terminal)] = producao
 
-        add("PROGRAM", {TokenType.CONST} | cls.FIRST_TYPE, 1)
-        add("CONST_DECL_LIST_OPT", {TokenType.CONST}, 2)
-        add("CONST_DECL_LIST_OPT", cls.FIRST_TYPE, 3)
-        add("CONST_DECL", {TokenType.CONST}, 4)
-        add("FUNCTION_LIST", cls.FIRST_TYPE, 5)
-        add("FUNCTION_LIST_TAIL", cls.FIRST_TYPE, 6)
-        add("FUNCTION_LIST_TAIL", {TokenType.EOF}, 7)
-        add("FUNCTION", cls.FIRST_TYPE, 8)
-        add("TYPE", {TokenType.INT}, 9)
-        add("TYPE", {TokenType.FLOAT}, 10)
-        add("PARAM_LIST_OPT", cls.FIRST_TYPE, 11)
-        add("PARAM_LIST_OPT", {TokenType.RPAREN}, 12)
-        add("PARAM_LIST", cls.FIRST_TYPE, 13)
-        add("PARAM_LIST_TAIL", {TokenType.COMMA}, 14)
-        add("PARAM_LIST_TAIL", {TokenType.RPAREN}, 15)
-        add("PARAM", cls.FIRST_TYPE, 16)
-        add("BLOCK", {TokenType.LBRACE}, 17)
-        add("DECL_LIST_OPT", cls.FIRST_TYPE, 18)
-        add("DECL_LIST_OPT", cls.FIRST_STMT | {TokenType.RBRACE}, 19)
-        add("DECL_LIST", cls.FIRST_TYPE, 20)
-        add("DECL_LIST_TAIL", cls.FIRST_TYPE, 21)
-        add("DECL_LIST_TAIL", cls.FIRST_STMT | {TokenType.RBRACE}, 22)
-        add("VAR_DECL", cls.FIRST_TYPE, 23)
-        add("STMT_LIST_OPT", cls.FIRST_STMT, 24)
-        add("STMT_LIST_OPT", {TokenType.RBRACE}, 25)
-        add("STMT_LIST", cls.FIRST_STMT, 26)
-        add("STMT_LIST_TAIL", cls.FIRST_STMT, 27)
-        add("STMT_LIST_TAIL", {TokenType.RBRACE}, 28)
-        add("STMT", {TokenType.ID}, 29)
-        add("STMT", {TokenType.IF}, 30)
-        add("STMT", {TokenType.WHILE}, 31)
-        add("STMT", {TokenType.PRINT}, 32)
-        add("STMT", {TokenType.RETURN}, 33)
-        add("STMT", {TokenType.LBRACE}, 34)
-        add("ASSIGN_STMT", {TokenType.ID}, 35)
-        add("RETURN_STMT", {TokenType.RETURN}, 36)
-        add("PRINT_STMT", {TokenType.PRINT}, 37)
-        add("IF_STMT", {TokenType.IF}, 38)
-        add("ELSE_PART", {TokenType.ELSE}, 39)
-        add("ELSE_PART", cls.FIRST_STMT | {TokenType.RBRACE, TokenType.EOF}, 40)
-        add("WHILE_STMT", {TokenType.WHILE}, 41)
-        add("EXPR", cls.FIRST_EXPR, 42)
-        add("REL_EXPR", cls.FIRST_EXPR, 43)
-        add("REL_EXPR_TAIL", cls.REL_OPS, 44)
-        add("REL_EXPR_TAIL", cls.FOLLOW_EXPR, 45)
-        add("REL_OP", {TokenType.EQ}, 46)
-        add("REL_OP", {TokenType.NEQ}, 47)
-        add("REL_OP", {TokenType.LT}, 48)
-        add("REL_OP", {TokenType.GT}, 49)
-        add("REL_OP", {TokenType.LEQ}, 50)
-        add("REL_OP", {TokenType.GEQ}, 51)
-        add("ADD_EXPR", cls.FIRST_EXPR, 52)
-        add("ADD_EXPR_TAIL", {TokenType.PLUS}, 53)
-        add("ADD_EXPR_TAIL", {TokenType.MINUS}, 54)
-        add("ADD_EXPR_TAIL", cls.REL_OPS | cls.FOLLOW_EXPR, 55)
-        add("MUL_EXPR", cls.FIRST_EXPR, 56)
-        add("MUL_EXPR_TAIL", {TokenType.STAR}, 57)
-        add("MUL_EXPR_TAIL", {TokenType.SLASH}, 58)
-        add("MUL_EXPR_TAIL", {TokenType.PLUS, TokenType.MINUS} | cls.REL_OPS | cls.FOLLOW_EXPR, 59)
-        add("FACTOR", {TokenType.LPAREN}, 60)
-        add("FACTOR", {TokenType.ID}, 61)
-        add("FACTOR", {TokenType.NUM}, 62)
-        add("FACTOR_TAIL", {TokenType.LPAREN}, 63)
-        add("FACTOR_TAIL", cls.FOLLOW_FACTOR, 64)
-        add("ARG_LIST_OPT", cls.FIRST_EXPR, 65)
-        add("ARG_LIST_OPT", {TokenType.RPAREN}, 66)
-        add("ARG_LIST", cls.FIRST_EXPR, 67)
-        add("ARG_LIST_TAIL", {TokenType.COMMA}, 68)
-        add("ARG_LIST_TAIL", {TokenType.RPAREN}, 69)
+        add("PROGRAM", cls.FIRST_TYPE, 1)
+        add("FUNCTION_LIST", cls.FIRST_TYPE, 2)
+        add("FUNCTION_LIST_TAIL", cls.FIRST_TYPE, 3)
+        add("FUNCTION_LIST_TAIL", {TokenType.EOF}, 4)
+        add("FUNCTION", cls.FIRST_TYPE, 5)
+        add("PARAM_LIST_OPT", cls.FIRST_TYPE, 6)
+        add("PARAM_LIST_OPT", {TokenType.RPAREN}, 7)
+        add("PARAM_LIST", cls.FIRST_TYPE, 8)
+        add("PARAM_LIST_TAIL", {TokenType.COMMA}, 9)
+        add("PARAM_LIST_TAIL", {TokenType.RPAREN}, 10)
+        add("PARAM", cls.FIRST_TYPE, 11)
+        add("BLOCK", {TokenType.LBRACE}, 12)
+        add("DECL_LIST_OPT", cls.FIRST_TYPE, 13)
+        add("DECL_LIST_OPT", cls.FIRST_STMT | {TokenType.RBRACE}, 14)
+        add("DECL_LIST", cls.FIRST_TYPE, 15)
+        add("DECL_LIST_TAIL", cls.FIRST_TYPE, 16)
+        add("DECL_LIST_TAIL", cls.FIRST_STMT | {TokenType.RBRACE}, 17)
+        add("VAR_DECL", cls.FIRST_TYPE, 18)
+        add("STMT_LIST_OPT", cls.FIRST_STMT, 19)
+        add("STMT_LIST_OPT", {TokenType.RBRACE}, 20)
+        add("STMT_LIST", cls.FIRST_STMT, 21)
+        add("STMT_LIST_TAIL", cls.FIRST_STMT, 22)
+        add("STMT_LIST_TAIL", {TokenType.RBRACE}, 23)
+        add("STMT", {TokenType.ID}, 24)
+        add("STMT", {TokenType.IF}, 25)
+        add("STMT", {TokenType.WHILE}, 26)
+        add("STMT", {TokenType.PRINT}, 27)
+        add("STMT", {TokenType.RETURN}, 28)
+        add("STMT", {TokenType.LBRACE}, 29)
+        add("ASSIGN_STMT", {TokenType.ID}, 30)
+        add("RETURN_STMT", {TokenType.RETURN}, 31)
+        add("PRINT_STMT", {TokenType.PRINT}, 32)
+        add("IF_STMT", {TokenType.IF}, 33)
+        add("ELSE_PART", {TokenType.ELSE}, 34)
+        add("ELSE_PART", cls.FIRST_STMT | {TokenType.RBRACE, TokenType.EOF}, 35)
+        add("WHILE_STMT", {TokenType.WHILE}, 36)
+        add("EXPR", cls.FIRST_EXPR, 37)
+        add("REL_EXPR", cls.FIRST_EXPR, 38)
+        add("REL_EXPR_TAIL", cls.REL_OPS, 39)
+        add("REL_EXPR_TAIL", cls.FOLLOW_EXPR, 40)
+        add("REL_OP", {TokenType.EQ}, 41)
+        add("REL_OP", {TokenType.NEQ}, 42)
+        add("REL_OP", {TokenType.LT}, 43)
+        add("REL_OP", {TokenType.GT}, 44)
+        add("REL_OP", {TokenType.LEQ}, 45)
+        add("REL_OP", {TokenType.GEQ}, 46)
+        add("ADD_EXPR", cls.FIRST_EXPR, 47)
+        add("ADD_EXPR_TAIL", {TokenType.PLUS}, 48)
+        add("ADD_EXPR_TAIL", {TokenType.MINUS}, 49)
+        add("ADD_EXPR_TAIL", cls.REL_OPS | cls.FOLLOW_EXPR, 50)
+        add("MUL_EXPR", cls.FIRST_EXPR, 51)
+        add("MUL_EXPR_TAIL", {TokenType.STAR}, 52)
+        add("MUL_EXPR_TAIL", {TokenType.SLASH}, 53)
+        add("MUL_EXPR_TAIL", {TokenType.PLUS, TokenType.MINUS} | cls.REL_OPS | cls.FOLLOW_EXPR, 54)
+        add("FACTOR", {TokenType.LPAREN}, 55)
+        add("FACTOR", {TokenType.ID}, 56)
+        add("FACTOR", {TokenType.NUM}, 57)
+        add("FACTOR_TAIL", {TokenType.LPAREN}, 58)
+        add("FACTOR_TAIL", cls.FOLLOW_FACTOR, 59)
+        add("ARG_LIST_OPT", cls.FIRST_EXPR, 60)
+        add("ARG_LIST_OPT", {TokenType.RPAREN}, 61)
+        add("ARG_LIST", cls.FIRST_EXPR, 62)
+        add("ARG_LIST_TAIL", {TokenType.COMMA}, 63)
+        add("ARG_LIST_TAIL", {TokenType.RPAREN}, 64)
+        add("TYPE", {TokenType.INT}, 65)
+        add("TYPE", {TokenType.FLOAT}, 66)
         return tabela
 
     def _formatar_simbolo(self, simbolo) -> str:
@@ -746,7 +737,7 @@ class AnalisadorSemantico:
             self.erro(f"identificador '{token_nome.valor}' ja declarado neste escopo", token_nome)
 
         global_existente = self.escopos[0].get(token_nome.valor)
-        if self.nivel_atual > 0 and global_existente and global_existente.categoria in {"constante", "funcao"}:
+        if self.nivel_atual > 0 and global_existente and global_existente.categoria == "funcao":
             self.erro(
                 f"identificador '{token_nome.valor}' ja usado no escopo global como {global_existente.categoria}",
                 token_nome,
@@ -758,12 +749,6 @@ class AnalisadorSemantico:
 
     def predeclarar_funcoes(self) -> None:
         pos = 0
-        while self.tokens[pos].tipo == TokenType.CONST:
-            while self.tokens[pos].tipo not in (TokenType.SEMICOLON, TokenType.EOF):
-                pos += 1
-            if self.tokens[pos].tipo == TokenType.SEMICOLON:
-                pos += 1
-
         while self.tokens[pos].tipo != TokenType.EOF:
             if (
                 self.tokens[pos].tipo in (TokenType.INT, TokenType.FLOAT)
@@ -823,43 +808,10 @@ class AnalisadorSemantico:
         return self.simbolos, self.eventos
 
     def programa(self) -> None:
-        while self.match(TokenType.CONST):
-            self.declaracao_constante(self.anterior())
-
         while not self.check(TokenType.EOF):
             self.funcao()
 
         self.consumir(TokenType.EOF, "esperado fim de entrada")
-
-    def declaracao_constante(self, token_const: Token) -> None:
-        self.registrar(
-            "Encontrar const",
-            "Token 'const' encontrado no nivel global; const + 1 deve apontar para o nome.",
-            token_const.linha,
-        )
-        nome_token = self.consumir(TokenType.ID, "esperado nome da constante apos 'const'")
-        self.consumir(TokenType.ASSIGN, "esperado '=' na declaracao de constante")
-        token_valor = self.atual
-        tipo = self.expressao()
-        self.consumir(TokenType.SEMICOLON, "esperado ';' ao final da constante")
-
-        if nome_token.valor in self.escopos[0]:
-            self.erro(f"identificador global '{nome_token.valor}' ja declarado", nome_token)
-
-        simbolo = Simbolo(nome_token.valor, "constante", tipo, 0, nome_token.linha, "global")
-        self.escopos[0][nome_token.valor] = simbolo
-        self.simbolos.append(simbolo)
-
-        self.registrar(
-            "Inferir tipo",
-            f"const + 3 inicia em '{token_valor.valor}'; o tipo registrado para '{nome_token.valor}' e {tipo}.",
-            token_valor.linha,
-        )
-        self.registrar(
-            "Inserir simbolo",
-            f"Inserido Nome={simbolo.nome}, Categoria=constante, Tipo={simbolo.tipo}, Nivel=0.",
-            nome_token.linha,
-        )
 
     def tipo(self) -> str:
         if self.match(TokenType.INT):
@@ -990,16 +942,6 @@ class AnalisadorSemantico:
 
         if simbolo is None:
             self.erro(f"identificador '{nome_token.valor}' usado antes da declaracao", nome_token)
-        if simbolo.categoria == "constante":
-            self.registrar(
-                "Erro semantico",
-                f"'{nome_token.valor}' esta como constante; o proximo token da pilha nao pode ser '='.",
-                nome_token.linha,
-                "ERRO",
-            )
-            raise ErroSemantico(
-                f"Linha {nome_token.linha}: o valor da constante '{nome_token.valor}' nao pode ser alterado"
-            )
         if simbolo.categoria == "funcao":
             self.erro(f"funcao '{nome_token.valor}' nao pode receber atribuicao", nome_token)
 
@@ -1188,17 +1130,17 @@ REQUISITOS_PDF = [
     [
         "AcoesSemantico.pdf",
         "Tabela de simbolos com Nome, Categoria, Tipo e Nivel.",
-        "Relatorio mostra a tabela completa com constantes, funcoes, parametros e variaveis.",
+        "Relatorio mostra a tabela completa com funcoes, parametros e variaveis.",
     ],
     [
-        "AcoesSemantico.pdf",
-        "Inserir const global como Categoria constante e Nivel 0.",
-        "Declaracoes const antes das funcoes entram como simbolos globais.",
+        "Gramática do PDF",
+        "Funcoes, parametros, variaveis locais, atribuicoes, chamadas e return.",
+        "Semantico valida declaracoes, escopos, compatibilidade de tipos e assinatura de chamadas.",
     ],
     [
-        "AcoesSemantico.pdf",
-        "Valor de const nao pode ser alterado; mostrar linha e erro semantico.",
-        "Atribuicao para simbolo constante gera ErroSemantico com linha.",
+        "Gramática do PDF",
+        "Erros semanticos devem apontar o erro e a linha.",
+        "Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.",
     ],
 ]
 
