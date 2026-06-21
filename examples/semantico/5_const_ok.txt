@@ -1,8 +1,0 @@
-const limite = 10;
-
-int main() {
-    int x;
-    x = limite;
-    print(x);
-    return 0;
-}

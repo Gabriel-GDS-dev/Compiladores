@@ -1,6 +1,0 @@
-const limite = 10;
-
-int main() {
-    limite = 20;
-    return 0;
-}
