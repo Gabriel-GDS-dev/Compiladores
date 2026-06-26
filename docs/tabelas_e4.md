@@ -2,13 +2,13 @@
 
 Este documento registra a gramatica usada pelo analisador sintatico tabular
 implementado em `src/compilador.py`, suas tabelas FIRST/FOLLOW e a tabela
-parser LL(1). A numeracao das producoes segue a gramatica do PDF base do
-trabalho.
+preditiva. As producoes 1 a 66 preservam a numeracao do PDF base; as producoes
+67 a 69 acrescentam as constantes globais pedidas em `AcoesSemantico.pdf`.
 
 ## Gramatica
 
 ```text
-1  PROGRAM            -> FUNCTION_LIST
+1  PROGRAM            -> CONST_LIST_OPT FUNCTION_LIST
 2  FUNCTION_LIST      -> FUNCTION FUNCTION_LIST_TAIL
 3  FUNCTION_LIST_TAIL -> FUNCTION FUNCTION_LIST_TAIL
 4  FUNCTION_LIST_TAIL -> epsilon
@@ -74,12 +74,15 @@ trabalho.
 64 ARG_LIST_TAIL      -> epsilon
 65 TYPE               -> int
 66 TYPE               -> float
+67 CONST_LIST_OPT     -> CONST_DECL CONST_LIST_OPT
+68 CONST_LIST_OPT     -> epsilon
+69 CONST_DECL         -> const id = num ;
 ```
 
 ## FIRST
 
 ```text
-PROGRAM:            int, float
+PROGRAM:            const, int, float
 FUNCTION_LIST:      int, float
 FUNCTION_LIST_TAIL: int, float, epsilon
 FUNCTION:           int, float
@@ -116,6 +119,8 @@ ARG_LIST_OPT:       (, id, num, epsilon
 ARG_LIST:           (, id, num
 ARG_LIST_TAIL:      ,, epsilon
 TYPE:               int, float
+CONST_LIST_OPT:     const, epsilon
+CONST_DECL:         const
 ```
 
 ## FOLLOW
@@ -158,14 +163,25 @@ ARG_LIST_OPT:       )
 ARG_LIST:           )
 ARG_LIST_TAIL:      )
 TYPE:               id
+CONST_LIST_OPT:     int, float
+CONST_DECL:         const, int, float
 ```
 
-## Tabela Parser LL(1)
+## Tabela preditiva e resolucao do `else`
 
 As entradas da tabela indicam o numero da producao usada.
 
+A gramatica do PDF contem o conflito classico do `dangling else`: `else`
+pertence simultaneamente ao FIRST da producao 34 e ao FOLLOW de `ELSE_PART`,
+que seria usado pela producao epsilon 35. A implementacao resolve a celula
+`M(ELSE_PART, else)` em favor da producao 34. Assim, o `else` e associado ao
+`if` aberto mais proximo, comportamento convencional de linguagens imperativas.
+
 ```text
-M(PROGRAM, int/float) = 1
+M(PROGRAM, const/int/float) = 1
+M(CONST_LIST_OPT, const) = 67
+M(CONST_LIST_OPT, int/float) = 68
+M(CONST_DECL, const) = 69
 M(FUNCTION_LIST, int/float) = 2
 M(FUNCTION_LIST_TAIL, int/float) = 3
 M(FUNCTION_LIST_TAIL, $) = 4
@@ -199,7 +215,7 @@ M(RETURN_STMT, return) = 31
 M(PRINT_STMT, print) = 32
 M(IF_STMT, if) = 33
 M(ELSE_PART, else) = 34
-M(ELSE_PART, id/if/while/print/return/{/}/$) = 35
+M(ELSE_PART, id/if/while/print/return/{/}) = 35
 M(WHILE_STMT, while) = 36
 M(EXPR, (/id/num) = 37
 M(REL_EXPR, (/id/num) = 38
@@ -241,4 +257,6 @@ da producao vem da matriz `M(nao_terminal, token_atual)`, e a execucao mantem
 uma pilha explicita iniciada com `$ PROGRAM`.
 
 Essa mudanca atende a exigencia da E4: mostrar a pilha a cada modificacao,
-usar uma tabela/matriz de analise sintatica e evitar backtracking.
+usar uma tabela/matriz de analise sintatica e evitar backtracking. O unico
+conflito da gramatica fornecida e tratado explicitamente pela regra do `else`
+mais proximo, em vez de ser ocultado na documentacao.

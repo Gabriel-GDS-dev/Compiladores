@@ -4,7 +4,7 @@ Compilador LangC# em arquivo unico.
 
 Inclui:
 - analisador lexico conforme o manual da linguagem;
-- analisador sintatico preditivo tabular LL(1);
+- analisador sintatico preditivo tabular, com resolucao explicita do dangling else;
 - analisador semantico com tabela de simbolos, escopos e tipos;
 - exportacao JSON de tokens;
 - relatorio HTML completo, sem prompt interativo.
@@ -58,6 +58,7 @@ class TokenType(Enum):
     COMMA = 25
     SEMICOLON = 26
     EOF = 27
+    CONST = 28
 
 
 KEYWORDS = {
@@ -68,6 +69,7 @@ KEYWORDS = {
     "while": TokenType.WHILE,
     "return": TokenType.RETURN,
     "print": TokenType.PRINT,
+    "const": TokenType.CONST,
 }
 
 
@@ -79,6 +81,7 @@ TOKEN_TEXT = {
     TokenType.WHILE: "while",
     TokenType.RETURN: "return",
     TokenType.PRINT: "print",
+    TokenType.CONST: "const",
     TokenType.ID: "id",
     TokenType.NUM: "num",
     TokenType.ASSIGN: "=",
@@ -412,7 +415,7 @@ class Parser:
     EPSILON = "epsilon"
 
     PRODUCOES = {
-        1: ("PROGRAM", ["FUNCTION_LIST"]),
+        1: ("PROGRAM", ["CONST_LIST_OPT", "FUNCTION_LIST"]),
         2: ("FUNCTION_LIST", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
         3: ("FUNCTION_LIST_TAIL", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
         4: ("FUNCTION_LIST_TAIL", []),
@@ -423,7 +426,7 @@ class Parser:
         9: ("PARAM_LIST_TAIL", [TokenType.COMMA, "PARAM", "PARAM_LIST_TAIL"]),
         10: ("PARAM_LIST_TAIL", []),
         11: ("PARAM", ["TYPE", TokenType.ID, "@decl_parametro"]),
-        12: ("BLOCK", [TokenType.LBRACE, "DECL_LIST_OPT", "STMT_LIST_OPT", TokenType.RBRACE]),
+        12: ("BLOCK", [TokenType.LBRACE, "@inicio_bloco", "DECL_LIST_OPT", "STMT_LIST_OPT", TokenType.RBRACE, "@fim_bloco"]),
         13: ("DECL_LIST_OPT", ["DECL_LIST"]),
         14: ("DECL_LIST_OPT", []),
         15: ("DECL_LIST", ["VAR_DECL", "DECL_LIST_TAIL"]),
@@ -478,6 +481,9 @@ class Parser:
         64: ("ARG_LIST_TAIL", []),
         65: ("TYPE", [TokenType.INT]),
         66: ("TYPE", [TokenType.FLOAT]),
+        67: ("CONST_LIST_OPT", ["CONST_DECL", "CONST_LIST_OPT"]),
+        68: ("CONST_LIST_OPT", []),
+        69: ("CONST_DECL", [TokenType.CONST, TokenType.ID, TokenType.ASSIGN, TokenType.NUM, "@decl_constante", TokenType.SEMICOLON]),
     }
 
     NAO_TERMINAIS = {esquerda for esquerda, _ in PRODUCOES.values()}
@@ -503,6 +509,9 @@ class Parser:
         self.pendentes_atrib: list[dict] = []      # contexto da atribuicao em curso
         self.nivel_atual = 0                       # 0 = global, 1 = corpo de funcao
         self.funcao_corrente: str | None = None    # nome da funcao sendo analisada
+        self.aguardando_bloco_funcao = False       # corpo da funcao reutiliza o escopo aberto no cabecalho
+        self.blocos_criaram_escopo: list[bool] = []
+        self.assinaturas_funcoes = self._mapear_assinaturas_funcoes()
         self._ts: list[Token] = []                 # buffer do avaliador de tipos
         self._ti = 0
 
@@ -520,7 +529,10 @@ class Parser:
             for terminal in terminais:
                 tabela[(nao_terminal, terminal)] = producao
 
-        add("PROGRAM", cls.FIRST_TYPE, 1)
+        add("PROGRAM", cls.FIRST_TYPE | {TokenType.CONST}, 1)
+        add("CONST_LIST_OPT", {TokenType.CONST}, 67)
+        add("CONST_LIST_OPT", cls.FIRST_TYPE, 68)
+        add("CONST_DECL", {TokenType.CONST}, 69)
         add("FUNCTION_LIST", cls.FIRST_TYPE, 2)
         add("FUNCTION_LIST_TAIL", cls.FIRST_TYPE, 3)
         add("FUNCTION_LIST_TAIL", {TokenType.EOF}, 4)
@@ -554,7 +566,10 @@ class Parser:
         add("PRINT_STMT", {TokenType.PRINT}, 32)
         add("IF_STMT", {TokenType.IF}, 33)
         add("ELSE_PART", {TokenType.ELSE}, 34)
-        add("ELSE_PART", cls.FIRST_STMT | {TokenType.RBRACE, TokenType.EOF}, 35)
+        # A gramatica original possui o conflito classico do "dangling else".
+        # Na celula (ELSE_PART, else), a producao 34 tem prioridade e associa o
+        # else ao if aberto mais proximo; a producao epsilon nao ocupa a celula.
+        add("ELSE_PART", cls.FIRST_STMT | {TokenType.RBRACE}, 35)
         add("WHILE_STMT", {TokenType.WHILE}, 36)
         add("EXPR", cls.FIRST_EXPR, 37)
         add("REL_EXPR", cls.FIRST_EXPR, 38)
@@ -587,6 +602,20 @@ class Parser:
         add("TYPE", {TokenType.INT}, 65)
         add("TYPE", {TokenType.FLOAT}, 66)
         return tabela
+
+    def _mapear_assinaturas_funcoes(self) -> dict[str, str]:
+        """Mapeia retornos antes do parsing para permitir chamadas adiantadas."""
+        assinaturas: dict[str, str] = {}
+        limite = len(self.tokens) - 2
+        for pos in range(max(0, limite)):
+            tipo, nome, abre = self.tokens[pos:pos + 3]
+            if (
+                tipo.tipo in self.FIRST_TYPE
+                and nome.tipo == TokenType.ID
+                and abre.tipo == TokenType.LPAREN
+            ):
+                assinaturas[nome.valor] = "int" if tipo.tipo == TokenType.INT else "float"
+        return assinaturas
 
     def _formatar_simbolo(self, simbolo) -> str:
         if isinstance(simbolo, TokenType):
@@ -653,7 +682,7 @@ class Parser:
         )
 
     # ------------------------------------------------------------------
-    # Acoes semanticas executadas junto ao analisador sintatico (LL(1)).
+    # Acoes semanticas executadas junto ao analisador sintatico tabular.
     # Sao disparadas quando um marcador "@..." e desempilhado.
     # ------------------------------------------------------------------
 
@@ -671,6 +700,9 @@ class Parser:
     def _tipo_do_token(self, token: Token) -> str:
         return "int" if token.tipo == TokenType.INT else "float"
 
+    def _tipo_do_numero(self, token: Token) -> str:
+        return "float" if "." in token.valor else "int"
+
     def _buscar(self, nome: str) -> Simbolo | None:
         for escopo in reversed(self.escopos):
             if nome in escopo:
@@ -680,7 +712,8 @@ class Parser:
     def _snapshot(self, rotulo: str, linha: int | None) -> None:
         linhas = [
             [s.nome, s.categoria, s.tipo, str(s.nivel), s.escopo, str(s.linha)]
-            for s in self.simbolos
+            for escopo in self.escopos
+            for s in escopo.values()
         ]
         self.snapshots.append({"rotulo": rotulo, "linha": linha, "linhas": linhas})
 
@@ -703,6 +736,20 @@ class Parser:
         )
 
     def _executar_acao(self, marcador: str) -> None:
+        if marcador == "@decl_constante":
+            nome_tok = self.consumidos[-3]
+            valor_tok = self.consumidos[-1]
+            simbolo = Simbolo(
+                nome_tok.valor,
+                "constante",
+                self._tipo_do_numero(valor_tok),
+                0,
+                nome_tok.linha,
+                "global",
+            )
+            self._declarar(simbolo, nome_tok)
+            return
+
         if marcador == "@decl_funcao":
             tipo_tok = self.consumidos[-2]
             nome_tok = self.consumidos[-1]
@@ -722,6 +769,35 @@ class Parser:
             self.funcao_corrente = nome_tok.valor
             self.escopos.append({})
             self.nivel_atual = 1
+            self.aguardando_bloco_funcao = True
+            return
+
+        if marcador == "@inicio_bloco":
+            if self.aguardando_bloco_funcao:
+                self.aguardando_bloco_funcao = False
+                self.blocos_criaram_escopo.append(False)
+            else:
+                self.escopos.append({})
+                self.nivel_atual += 1
+                self.blocos_criaram_escopo.append(True)
+            return
+
+        if marcador == "@fim_bloco":
+            criou_escopo = self.blocos_criaram_escopo.pop()
+            if criou_escopo:
+                removidos = list(self.escopos[-1].keys())
+                self.escopos.pop()
+                self.nivel_atual -= 1
+                self._registrar_acao(
+                    "Remover da tabela",
+                    f"Fim de bloco: escopo de nivel {self.nivel_atual + 1} removido "
+                    f"({', '.join(removidos) or 'vazio'}).",
+                    None,
+                )
+                self._snapshot(
+                    f"Removeu escopo de bloco ({', '.join(removidos) or 'vazio'})",
+                    None,
+                )
             return
 
         if marcador == "@fim_funcao":
@@ -731,6 +807,11 @@ class Parser:
             self._registrar_acao(
                 "Remover da tabela",
                 f"Fim da funcao '{self.funcao_corrente}': escopo local removido ({', '.join(removidos) or 'vazio'}).",
+                None,
+            )
+            self._snapshot(
+                f"Removeu escopo da funcao '{self.funcao_corrente}' "
+                f"({', '.join(removidos) or 'vazio'})",
                 None,
             )
             self.funcao_corrente = None
@@ -770,6 +851,10 @@ class Parser:
                 self._erro_semantico(
                     f"funcao '{nome_tok.valor}' nao pode receber atribuicao", nome_tok
                 )
+            if simbolo.categoria == "constante":
+                self._erro_semantico(
+                    f"constante '{nome_tok.valor}' nao pode ter seu valor alterado", nome_tok
+                )
             self._registrar_acao(
                 "Consultar tabela",
                 f"'{nome_tok.valor}' encontrado como {simbolo.categoria} do tipo {simbolo.tipo}.",
@@ -781,8 +866,9 @@ class Parser:
         if marcador == "@usa_id":
             nome_tok = self.consumidos[-1]
             if self.atual.tipo == TokenType.LPAREN:
-                # Chamada de funcao: validacao detalhada fica no analisador dedicado.
-                if self._buscar(nome_tok.valor) is None:
+                # As assinaturas sao mapeadas antes do parsing, permitindo
+                # chamadas de funcoes declaradas mais adiante no arquivo.
+                if nome_tok.valor not in self.assinaturas_funcoes:
                     self._erro_semantico(f"funcao '{nome_tok.valor}' nao declarada", nome_tok)
                 return
             simbolo = self._buscar(nome_tok.valor)
@@ -891,8 +977,7 @@ class Parser:
                         self._te_expr()
                 if self._te_peek() is not None and self._te_peek().tipo == TokenType.RPAREN:
                     self._te_adv()  # consome ')'
-                simbolo = self.escopos[0].get(token.valor)
-                return simbolo.tipo if simbolo is not None else "int"
+                return self.assinaturas_funcoes.get(token.valor, "int")
             simbolo = self._buscar(token.valor)
             return simbolo.tipo if simbolo is not None else "int"
         return "int"
@@ -1076,14 +1161,43 @@ class AnalisadorSemantico:
         )
         self.predeclarar_funcoes()
         self.programa()
+        simbolo_main = self.escopos[0].get("main")
+        if simbolo_main is None or simbolo_main.categoria != "funcao":
+            self.erro("programa deve declarar a funcao de entrada 'main'", self.tokens[-1])
         self.registrar("Resultado", "Analise semantica concluida sem erros.", status="OK")
         return self.simbolos, self.eventos
 
     def programa(self) -> None:
+        while self.check(TokenType.CONST):
+            self.declaracao_constante()
+
         while not self.check(TokenType.EOF):
             self.funcao()
 
         self.consumir(TokenType.EOF, "esperado fim de entrada")
+
+    def declaracao_constante(self) -> None:
+        self.consumir(TokenType.CONST, "esperado 'const'")
+        nome_token = self.consumir(TokenType.ID, "esperado nome da constante")
+        self.consumir(TokenType.ASSIGN, "esperado '=' na declaracao da constante")
+        valor_token = self.consumir(TokenType.NUM, "esperado valor numerico da constante")
+        self.consumir(TokenType.SEMICOLON, "esperado ';' apos declaracao da constante")
+
+        tipo_constante = "float" if "." in valor_token.valor else "int"
+        simbolo = Simbolo(
+            nome_token.valor,
+            "constante",
+            tipo_constante,
+            0,
+            nome_token.linha,
+            "global",
+        )
+        self.declarar(simbolo, nome_token)
+        self.registrar(
+            "Declarar constante",
+            f"Constante global '{nome_token.valor}' registrada com tipo {tipo_constante}.",
+            nome_token.linha,
+        )
 
     def tipo(self) -> str:
         if self.match(TokenType.INT):
@@ -1216,6 +1330,11 @@ class AnalisadorSemantico:
             self.erro(f"identificador '{nome_token.valor}' usado antes da declaracao", nome_token)
         if simbolo.categoria == "funcao":
             self.erro(f"funcao '{nome_token.valor}' nao pode receber atribuicao", nome_token)
+        if simbolo.categoria == "constante":
+            self.erro(
+                f"constante '{nome_token.valor}' nao pode ter seu valor alterado",
+                nome_token,
+            )
 
         self.consumir(TokenType.ASSIGN, "esperado '=' na atribuicao")
         tipo_expr = self.expressao()
@@ -1386,8 +1505,8 @@ class AnalisadorSemantico:
 REQUISITOS_PDF = [
     [
         "Manual LangC#",
-        "Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.",
-        "Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.",
+        "Programa formado por funcoes tipadas, com main como ponto de entrada; variaveis no inicio do bloco.",
+        "Parser valida a estrutura e o semantico exige a existencia da funcao main.",
     ],
     [
         "Manual LangC#",
@@ -1402,7 +1521,12 @@ REQUISITOS_PDF = [
     [
         "AcoesSemantico.pdf",
         "Tabela de simbolos com Nome, Categoria, Tipo e Nivel.",
-        "Relatorio mostra a tabela completa com funcoes, parametros e variaveis.",
+        "Relatorio mostra constantes, funcoes, parametros e variaveis, incluindo niveis de blocos.",
+    ],
+    [
+        "AcoesSemantico.pdf",
+        "Constantes sao globais e seu valor nao pode ser alterado.",
+        "A declaracao 'const nome = num;' cria categoria constante no nivel 0; atribuicoes posteriores geram erro.",
     ],
     [
         "Gramática do PDF",
@@ -1415,14 +1539,19 @@ REQUISITOS_PDF = [
         "Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.",
     ],
     [
+        "Gramática do PDF",
+        "A alternativa else/epsilon produz o conflito classico do dangling else.",
+        "A tabela prioriza a producao com else, associando-o ao if aberto mais proximo.",
+    ],
+    [
         "AcoesSemantico.pdf",
         "Pelo menos 3 acoes semanticas implementadas junto ao analisador sintatico.",
-        "Parser LL(1) executa marcadores @decl_*, @usa_* e @checa_atrib durante o reconhecimento.",
+        "Parser tabular executa marcadores de declaracao, escopo, uso e checagem de tipos durante o reconhecimento.",
     ],
     [
         "Enunciado E5",
         "Mostrar a tabela de simbolos a cada modificacao.",
-        "Cada insercao gera um snapshot exibido na secao 'Tabela de simbolos a cada modificacao'.",
+        "Insercoes e remocoes de escopo geram snapshots da tabela ativa.",
     ],
 ]
 
@@ -1872,7 +2001,7 @@ def gerar_relatorio_html(resultado: ResultadoCompilacao, caminho: Path | None = 
     </section>
     <section class="panel">
       <h2>Tabela de simbolos a cada modificacao (acoes junto ao parser)</h2>
-      <p>Cada bloco mostra o estado completo da tabela imediatamente apos uma insercao feita por uma acao semantica durante a analise sintatica.</p>
+      <p>Cada bloco mostra o estado da tabela ativa imediatamente apos uma insercao ou remocao de escopo feita durante a analise sintatica.</p>
       {html_snapshots(resultado.snapshots_tabela)}
     </section>
     <section class="panel">

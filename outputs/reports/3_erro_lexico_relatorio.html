@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Compilador LangC# - /home/claude/proj/examples/langc/3_erro_lexico.txt</title>
+  <title>Compilador LangC# - C:\Users\gabri\OneDrive\Documentos\Compiladores-1\examples\langc\3_erro_lexico.txt</title>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -186,7 +186,7 @@
       <div>
         <div class="eyebrow">Compilador LangC#</div>
         <h1>Relatorio de Analise</h1>
-        <p class="file">/home/claude/proj/examples/langc/3_erro_lexico.txt</p>
+        <p class="file">C:\Users\gabri\OneDrive\Documentos\Compiladores-1\examples\langc\3_erro_lexico.txt</p>
       </div>
       <div class="badge erro">ERRO</div>
     </div>
@@ -216,7 +216,7 @@
       <div>
         <section class="panel requirements">
           <h2>Requisitos dos PDFs</h2>
-          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas; variaveis declaradas no inicio do bloco.</td><td>Parser LL(1) valida funcoes, parametros, blocos, declaracoes e comandos nessa ordem.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra a tabela completa com funcoes, parametros e variaveis.</td></tr><tr><td>Gramática do PDF</td><td>Funcoes, parametros, variaveis locais, atribuicoes, chamadas e return.</td><td>Semantico valida declaracoes, escopos, compatibilidade de tipos e assinatura de chamadas.</td></tr><tr><td>Gramática do PDF</td><td>Erros semanticos devem apontar o erro e a linha.</td><td>Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Pelo menos 3 acoes semanticas implementadas junto ao analisador sintatico.</td><td>Parser LL(1) executa marcadores @decl_*, @usa_* e @checa_atrib durante o reconhecimento.</td></tr><tr><td>Enunciado E5</td><td>Mostrar a tabela de simbolos a cada modificacao.</td><td>Cada insercao gera um snapshot exibido na secao &#x27;Tabela de simbolos a cada modificacao&#x27;.</td></tr></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>Fonte</th><th>Regra</th><th>Implementacao</th></tr></thead><tbody><tr><td>Manual LangC#</td><td>Programa formado por funcoes tipadas, com main como ponto de entrada; variaveis no inicio do bloco.</td><td>Parser valida a estrutura e o semantico exige a existencia da funcao main.</td></tr><tr><td>Manual LangC#</td><td>Identificadores ASCII com ate 64 caracteres; numeros inteiros/reais; comentarios ç# e ç@...@ç.</td><td>Lexer implementa cada regra e aponta linha no erro lexico.</td></tr><tr><td>Manual LangC#</td><td>Sem conversao implicita entre int e float.</td><td>Semantico compara tipos em atribuicao, return, operadores e chamadas.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Tabela de simbolos com Nome, Categoria, Tipo e Nivel.</td><td>Relatorio mostra constantes, funcoes, parametros e variaveis, incluindo niveis de blocos.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Constantes sao globais e seu valor nao pode ser alterado.</td><td>A declaracao &#x27;const nome = num;&#x27; cria categoria constante no nivel 0; atribuicoes posteriores geram erro.</td></tr><tr><td>Gramática do PDF</td><td>Funcoes, parametros, variaveis locais, atribuicoes, chamadas e return.</td><td>Semantico valida declaracoes, escopos, compatibilidade de tipos e assinatura de chamadas.</td></tr><tr><td>Gramática do PDF</td><td>Erros semanticos devem apontar o erro e a linha.</td><td>Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.</td></tr><tr><td>Gramática do PDF</td><td>A alternativa else/epsilon produz o conflito classico do dangling else.</td><td>A tabela prioriza a producao com else, associando-o ao if aberto mais proximo.</td></tr><tr><td>AcoesSemantico.pdf</td><td>Pelo menos 3 acoes semanticas implementadas junto ao analisador sintatico.</td><td>Parser tabular executa marcadores de declaracao, escopo, uso e checagem de tipos durante o reconhecimento.</td></tr><tr><td>Enunciado E5</td><td>Mostrar a tabela de simbolos a cada modificacao.</td><td>Insercoes e remocoes de escopo geram snapshots da tabela ativa.</td></tr></tbody></table></div>
         </section>
         <section class="panel">
           <h2>Tabela de simbolos</h2>
@@ -230,7 +230,7 @@
     </section>
     <section class="panel">
       <h2>Tabela de simbolos a cada modificacao (acoes junto ao parser)</h2>
-      <p>Cada bloco mostra o estado completo da tabela imediatamente apos uma insercao feita por uma acao semantica durante a analise sintatica.</p>
+      <p>Cada bloco mostra o estado da tabela ativa imediatamente apos uma insercao ou remocao de escopo feita durante a analise sintatica.</p>
       <p>Nenhuma modificacao registrada na tabela de simbolos.</p>
     </section>
     <section class="panel">

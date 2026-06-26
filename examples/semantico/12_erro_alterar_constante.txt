@@ -1,0 +1,7 @@
+ç# Erro semantico: uma constante nao pode receber nova atribuicao
+const LIMITE = 10;
+
+int main() {
+    LIMITE = 20;
+    return LIMITE;
+}

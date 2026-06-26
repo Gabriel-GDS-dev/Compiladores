@@ -1,0 +1,14 @@
+ç# Constantes globais com tipos inferidos e uso em expressoes
+const LIMITE = 10;
+const FATOR = 1.5;
+
+float aplicar(float valor) {
+    return valor * FATOR;
+}
+
+int main() {
+    int resultado;
+    resultado = LIMITE;
+    print(aplicar(2.0));
+    return resultado;
+}
