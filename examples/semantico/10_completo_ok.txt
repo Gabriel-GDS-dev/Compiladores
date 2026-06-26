@@ -1,0 +1,20 @@
+ç@ Programa valido cobrindo declaracoes, parametros,
+   chamadas de funcao, if/while e tipos coerentes @ç
+int quadrado(int n) {
+    int r;
+    r = n * n;
+    return r;
+}
+
+int main() {
+    int i;
+    int soma;
+    i = 1;
+    soma = 0;
+    while (i <= 4) {
+        soma = soma + quadrado(i);
+        i = i + 1;
+    }
+    print(soma);
+    return soma;
+}

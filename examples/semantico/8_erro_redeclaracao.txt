@@ -1,0 +1,7 @@
+ç# Erro semantico: identificador redeclarado no mesmo escopo
+int main() {
+    int x;
+    int x;
+    x = 1;
+    return x;
+}

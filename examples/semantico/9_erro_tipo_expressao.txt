@@ -1,0 +1,12 @@
+ç# Erro semantico: mistura de int e float em atribuicao
+float media(int a, int b) {
+    float r;
+    r = a + b;
+    return r;
+}
+
+int main() {
+    int valor;
+    valor = 10;
+    return valor;
+}

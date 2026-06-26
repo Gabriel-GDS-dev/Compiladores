@@ -1,0 +1,6 @@
+ç# Erro semantico: uso de variavel antes da declaracao
+int main() {
+    int total;
+    total = soma + 1;
+    return total;
+}

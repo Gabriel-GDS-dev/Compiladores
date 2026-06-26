@@ -1,0 +1,190 @@
+{
+  "tokens": [
+    1,
+    8,
+    21,
+    22,
+    23,
+    1,
+    8,
+    26,
+    8,
+    10,
+    8,
+    11,
+    9,
+    26,
+    6,
+    8,
+    26,
+    24
+  ],
+  "lexemas": [
+    "int",
+    "main",
+    "(",
+    ")",
+    "{",
+    "int",
+    "total",
+    ";",
+    "total",
+    "=",
+    "soma",
+    "+",
+    "1",
+    ";",
+    "return",
+    "total",
+    ";",
+    "}"
+  ],
+  "linhas": [
+    2,
+    2,
+    2,
+    2,
+    2,
+    3,
+    3,
+    3,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    5,
+    5,
+    5,
+    6
+  ],
+  "detalhes": [
+    {
+      "codigo": 1,
+      "token": "INT",
+      "lexema": "int",
+      "linha": 2,
+      "coluna": 1
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "main",
+      "linha": 2,
+      "coluna": 5
+    },
+    {
+      "codigo": 21,
+      "token": "LPAREN",
+      "lexema": "(",
+      "linha": 2,
+      "coluna": 9
+    },
+    {
+      "codigo": 22,
+      "token": "RPAREN",
+      "lexema": ")",
+      "linha": 2,
+      "coluna": 10
+    },
+    {
+      "codigo": 23,
+      "token": "LBRACE",
+      "lexema": "{",
+      "linha": 2,
+      "coluna": 12
+    },
+    {
+      "codigo": 1,
+      "token": "INT",
+      "lexema": "int",
+      "linha": 3,
+      "coluna": 5
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "total",
+      "linha": 3,
+      "coluna": 9
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 3,
+      "coluna": 14
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "total",
+      "linha": 4,
+      "coluna": 5
+    },
+    {
+      "codigo": 10,
+      "token": "ASSIGN",
+      "lexema": "=",
+      "linha": 4,
+      "coluna": 11
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "soma",
+      "linha": 4,
+      "coluna": 13
+    },
+    {
+      "codigo": 11,
+      "token": "PLUS",
+      "lexema": "+",
+      "linha": 4,
+      "coluna": 18
+    },
+    {
+      "codigo": 9,
+      "token": "NUM",
+      "lexema": "1",
+      "linha": 4,
+      "coluna": 20
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 4,
+      "coluna": 21
+    },
+    {
+      "codigo": 6,
+      "token": "RETURN",
+      "lexema": "return",
+      "linha": 5,
+      "coluna": 5
+    },
+    {
+      "codigo": 8,
+      "token": "ID",
+      "lexema": "total",
+      "linha": 5,
+      "coluna": 12
+    },
+    {
+      "codigo": 26,
+      "token": "SEMICOLON",
+      "lexema": ";",
+      "linha": 5,
+      "coluna": 17
+    },
+    {
+      "codigo": 24,
+      "token": "RBRACE",
+      "lexema": "}",
+      "linha": 6,
+      "coluna": 1
+    }
+  ]
+}

@@ -168,6 +168,7 @@ class ResultadoCompilacao:
     passos_sintaticos: list[PassoSintatico] = field(default_factory=list)
     simbolos: list[Simbolo] = field(default_factory=list)
     eventos_semanticos: list[EventoSemantico] = field(default_factory=list)
+    snapshots_tabela: list[dict] = field(default_factory=list)
     sucesso: bool = False
     fase: str = "inicio"
     diagnostico: str = ""
@@ -415,20 +416,20 @@ class Parser:
         2: ("FUNCTION_LIST", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
         3: ("FUNCTION_LIST_TAIL", ["FUNCTION", "FUNCTION_LIST_TAIL"]),
         4: ("FUNCTION_LIST_TAIL", []),
-        5: ("FUNCTION", ["TYPE", TokenType.ID, TokenType.LPAREN, "PARAM_LIST_OPT", TokenType.RPAREN, "BLOCK"]),
+        5: ("FUNCTION", ["TYPE", TokenType.ID, "@decl_funcao", TokenType.LPAREN, "PARAM_LIST_OPT", TokenType.RPAREN, "BLOCK", "@fim_funcao"]),
         6: ("PARAM_LIST_OPT", ["PARAM_LIST"]),
         7: ("PARAM_LIST_OPT", []),
         8: ("PARAM_LIST", ["PARAM", "PARAM_LIST_TAIL"]),
         9: ("PARAM_LIST_TAIL", [TokenType.COMMA, "PARAM", "PARAM_LIST_TAIL"]),
         10: ("PARAM_LIST_TAIL", []),
-        11: ("PARAM", ["TYPE", TokenType.ID]),
+        11: ("PARAM", ["TYPE", TokenType.ID, "@decl_parametro"]),
         12: ("BLOCK", [TokenType.LBRACE, "DECL_LIST_OPT", "STMT_LIST_OPT", TokenType.RBRACE]),
         13: ("DECL_LIST_OPT", ["DECL_LIST"]),
         14: ("DECL_LIST_OPT", []),
         15: ("DECL_LIST", ["VAR_DECL", "DECL_LIST_TAIL"]),
         16: ("DECL_LIST_TAIL", ["VAR_DECL", "DECL_LIST_TAIL"]),
         17: ("DECL_LIST_TAIL", []),
-        18: ("VAR_DECL", ["TYPE", TokenType.ID, TokenType.SEMICOLON]),
+        18: ("VAR_DECL", ["TYPE", TokenType.ID, "@decl_variavel", TokenType.SEMICOLON]),
         19: ("STMT_LIST_OPT", ["STMT_LIST"]),
         20: ("STMT_LIST_OPT", []),
         21: ("STMT_LIST", ["STMT", "STMT_LIST_TAIL"]),
@@ -440,7 +441,7 @@ class Parser:
         27: ("STMT", ["PRINT_STMT"]),
         28: ("STMT", ["RETURN_STMT"]),
         29: ("STMT", ["BLOCK"]),
-        30: ("ASSIGN_STMT", [TokenType.ID, TokenType.ASSIGN, "EXPR", TokenType.SEMICOLON]),
+        30: ("ASSIGN_STMT", [TokenType.ID, "@usa_lhs", TokenType.ASSIGN, "EXPR", "@checa_atrib", TokenType.SEMICOLON]),
         31: ("RETURN_STMT", [TokenType.RETURN, "EXPR", TokenType.SEMICOLON]),
         32: ("PRINT_STMT", [TokenType.PRINT, TokenType.LPAREN, "EXPR", TokenType.RPAREN, TokenType.SEMICOLON]),
         33: ("IF_STMT", [TokenType.IF, TokenType.LPAREN, "EXPR", TokenType.RPAREN, "STMT", "ELSE_PART"]),
@@ -466,7 +467,7 @@ class Parser:
         53: ("MUL_EXPR_TAIL", [TokenType.SLASH, "FACTOR", "MUL_EXPR_TAIL"]),
         54: ("MUL_EXPR_TAIL", []),
         55: ("FACTOR", [TokenType.LPAREN, "EXPR", TokenType.RPAREN]),
-        56: ("FACTOR", [TokenType.ID, "FACTOR_TAIL"]),
+        56: ("FACTOR", [TokenType.ID, "@usa_id", "FACTOR_TAIL"]),
         57: ("FACTOR", [TokenType.NUM]),
         58: ("FACTOR_TAIL", [TokenType.LPAREN, "ARG_LIST_OPT", TokenType.RPAREN]),
         59: ("FACTOR_TAIL", []),
@@ -492,6 +493,18 @@ class Parser:
         self.pos = 0
         self.tabela = self._criar_tabela()
         self.passos: list[PassoSintatico] = []
+
+        # Estado da analise semantica embutida no parser (acoes semanticas).
+        self.simbolos: list[Simbolo] = []          # tabela de simbolos linearizada
+        self.escopos: list[dict[str, Simbolo]] = [{}]  # pilha de escopos; [0] = global
+        self.snapshots: list[dict] = []            # estado da tabela a cada modificacao
+        self.eventos_acoes: list[EventoSemantico] = []  # log textual das acoes
+        self.consumidos: list[Token] = []          # historico de terminais consumidos
+        self.pendentes_atrib: list[dict] = []      # contexto da atribuicao em curso
+        self.nivel_atual = 0                       # 0 = global, 1 = corpo de funcao
+        self.funcao_corrente: str | None = None    # nome da funcao sendo analisada
+        self._ts: list[Token] = []                 # buffer do avaliador de tipos
+        self._ti = 0
 
     @property
     def atual(self) -> Token:
@@ -639,6 +652,251 @@ class Parser:
             f"Esperado um de: {', '.join(esperados)}"
         )
 
+    # ------------------------------------------------------------------
+    # Acoes semanticas executadas junto ao analisador sintatico (LL(1)).
+    # Sao disparadas quando um marcador "@..." e desempilhado.
+    # ------------------------------------------------------------------
+
+    def _erro_semantico(self, mensagem: str, token: Token) -> None:
+        self.eventos_acoes.append(
+            EventoSemantico(len(self.eventos_acoes) + 1, "Erro semantico", mensagem, token.linha, "ERRO")
+        )
+        raise ErroSemantico(f"Linha {token.linha}: {mensagem}")
+
+    def _registrar_acao(self, etapa: str, detalhe: str, linha: int | None) -> None:
+        self.eventos_acoes.append(
+            EventoSemantico(len(self.eventos_acoes) + 1, etapa, detalhe, linha, "OK")
+        )
+
+    def _tipo_do_token(self, token: Token) -> str:
+        return "int" if token.tipo == TokenType.INT else "float"
+
+    def _buscar(self, nome: str) -> Simbolo | None:
+        for escopo in reversed(self.escopos):
+            if nome in escopo:
+                return escopo[nome]
+        return None
+
+    def _snapshot(self, rotulo: str, linha: int | None) -> None:
+        linhas = [
+            [s.nome, s.categoria, s.tipo, str(s.nivel), s.escopo, str(s.linha)]
+            for s in self.simbolos
+        ]
+        self.snapshots.append({"rotulo": rotulo, "linha": linha, "linhas": linhas})
+
+    def _declarar(self, simbolo: Simbolo, token: Token) -> None:
+        escopo = self.escopos[-1]
+        if token.valor in escopo:
+            self._erro_semantico(
+                f"identificador '{token.valor}' ja declarado neste escopo", token
+            )
+        escopo[token.valor] = simbolo
+        self.simbolos.append(simbolo)
+        self._registrar_acao(
+            "Inserir na tabela",
+            f"{simbolo.categoria} '{simbolo.nome}' (tipo {simbolo.tipo}, nivel {simbolo.nivel}) inserido(a).",
+            token.linha,
+        )
+        self._snapshot(
+            f"Inseriu {simbolo.categoria} '{simbolo.nome}' (tipo {simbolo.tipo}, nivel {simbolo.nivel})",
+            token.linha,
+        )
+
+    def _executar_acao(self, marcador: str) -> None:
+        if marcador == "@decl_funcao":
+            tipo_tok = self.consumidos[-2]
+            nome_tok = self.consumidos[-1]
+            if nome_tok.valor in self.escopos[0]:
+                self._erro_semantico(f"funcao '{nome_tok.valor}' ja declarada", nome_tok)
+            simbolo = Simbolo(
+                nome_tok.valor, "funcao", self._tipo_do_token(tipo_tok), 0, nome_tok.linha, "global"
+            )
+            self.escopos[0][nome_tok.valor] = simbolo
+            self.simbolos.append(simbolo)
+            self._registrar_acao(
+                "Inserir na tabela",
+                f"funcao '{nome_tok.valor}' (retorno {simbolo.tipo}, nivel 0) inserida.",
+                nome_tok.linha,
+            )
+            self._snapshot(f"Inseriu funcao '{nome_tok.valor}' (retorno {simbolo.tipo})", nome_tok.linha)
+            self.funcao_corrente = nome_tok.valor
+            self.escopos.append({})
+            self.nivel_atual = 1
+            return
+
+        if marcador == "@fim_funcao":
+            removidos = list(self.escopos[-1].keys())
+            self.escopos.pop()
+            self.nivel_atual = 0
+            self._registrar_acao(
+                "Remover da tabela",
+                f"Fim da funcao '{self.funcao_corrente}': escopo local removido ({', '.join(removidos) or 'vazio'}).",
+                None,
+            )
+            self.funcao_corrente = None
+            return
+
+        if marcador == "@decl_parametro":
+            tipo_tok = self.consumidos[-2]
+            nome_tok = self.consumidos[-1]
+            simbolo = Simbolo(
+                nome_tok.valor, "parametro", self._tipo_do_token(tipo_tok), 1, nome_tok.linha,
+                self.funcao_corrente or "global",
+            )
+            self._declarar(simbolo, nome_tok)
+            funcao = self.escopos[0].get(self.funcao_corrente)
+            if funcao is not None:
+                funcao.parametros.append(simbolo.tipo)
+            return
+
+        if marcador == "@decl_variavel":
+            tipo_tok = self.consumidos[-2]
+            nome_tok = self.consumidos[-1]
+            simbolo = Simbolo(
+                nome_tok.valor, "variavel", self._tipo_do_token(tipo_tok), self.nivel_atual,
+                nome_tok.linha, self.funcao_corrente or "global",
+            )
+            self._declarar(simbolo, nome_tok)
+            return
+
+        if marcador == "@usa_lhs":
+            nome_tok = self.consumidos[-1]
+            simbolo = self._buscar(nome_tok.valor)
+            if simbolo is None:
+                self._erro_semantico(
+                    f"identificador '{nome_tok.valor}' usado antes da declaracao", nome_tok
+                )
+            if simbolo.categoria == "funcao":
+                self._erro_semantico(
+                    f"funcao '{nome_tok.valor}' nao pode receber atribuicao", nome_tok
+                )
+            self._registrar_acao(
+                "Consultar tabela",
+                f"'{nome_tok.valor}' encontrado como {simbolo.categoria} do tipo {simbolo.tipo}.",
+                nome_tok.linha,
+            )
+            self.pendentes_atrib.append({"lhs": nome_tok, "tipo_lhs": simbolo.tipo, "ini": None})
+            return
+
+        if marcador == "@usa_id":
+            nome_tok = self.consumidos[-1]
+            if self.atual.tipo == TokenType.LPAREN:
+                # Chamada de funcao: validacao detalhada fica no analisador dedicado.
+                if self._buscar(nome_tok.valor) is None:
+                    self._erro_semantico(f"funcao '{nome_tok.valor}' nao declarada", nome_tok)
+                return
+            simbolo = self._buscar(nome_tok.valor)
+            if simbolo is None:
+                self._erro_semantico(
+                    f"identificador '{nome_tok.valor}' usado antes da declaracao", nome_tok
+                )
+            self._registrar_acao(
+                "Consultar tabela",
+                f"uso de '{nome_tok.valor}' como {simbolo.categoria} do tipo {simbolo.tipo}.",
+                nome_tok.linha,
+            )
+            return
+
+        if marcador == "@checa_atrib":
+            pendente = self.pendentes_atrib.pop()
+            inicio = pendente["ini"] if pendente["ini"] is not None else self.pos
+            fatia = self.tokens[inicio:self.pos]
+            tipo_rhs = self._tipo_da_expressao(fatia)
+            lhs = pendente["lhs"]
+            if pendente["tipo_lhs"] != tipo_rhs:
+                self._erro_semantico(
+                    f"tipos incompativeis em atribuicao para '{lhs.valor}': "
+                    f"esperado {pendente['tipo_lhs']}, recebido {tipo_rhs}",
+                    lhs,
+                )
+            self._registrar_acao(
+                "Checar atribuicao",
+                f"atribuicao para '{lhs.valor}' valida: {pendente['tipo_lhs']} recebe {tipo_rhs}.",
+                lhs.linha,
+            )
+            return
+
+    # ------------------------------------------------------------------
+    # Avaliador de tipos sobre uma fatia ja validada pela sintaxe.
+    # Usa a tabela de simbolos construida pelas acoes acima.
+    # ------------------------------------------------------------------
+
+    def _tipo_da_expressao(self, fatia: list[Token]) -> str:
+        self._ts = fatia
+        self._ti = 0
+        return self._te_expr()
+
+    def _te_peek(self) -> Token | None:
+        return self._ts[self._ti] if self._ti < len(self._ts) else None
+
+    def _te_adv(self) -> Token:
+        token = self._ts[self._ti]
+        self._ti += 1
+        return token
+
+    def _te_expr(self) -> str:
+        tipo = self._te_aditivo()
+        prox = self._te_peek()
+        if prox is not None and prox.tipo in Parser.REL_OPS:
+            operador = self._te_adv()
+            tipo_dir = self._te_aditivo()
+            if tipo != tipo_dir:
+                self._erro_semantico(
+                    f"operador relacional '{operador.valor}': operandos {tipo} e {tipo_dir} incompativeis",
+                    operador,
+                )
+            return "int"
+        return tipo
+
+    def _te_aditivo(self) -> str:
+        tipo = self._te_multiplicativo()
+        while self._te_peek() is not None and self._te_peek().tipo in (TokenType.PLUS, TokenType.MINUS):
+            operador = self._te_adv()
+            tipo_dir = self._te_multiplicativo()
+            if tipo != tipo_dir:
+                self._erro_semantico(
+                    f"operador '{operador.valor}': operandos {tipo} e {tipo_dir} incompativeis",
+                    operador,
+                )
+        return tipo
+
+    def _te_multiplicativo(self) -> str:
+        tipo = self._te_fator()
+        while self._te_peek() is not None and self._te_peek().tipo in (TokenType.STAR, TokenType.SLASH):
+            operador = self._te_adv()
+            tipo_dir = self._te_fator()
+            if tipo != tipo_dir:
+                self._erro_semantico(
+                    f"operador '{operador.valor}': operandos {tipo} e {tipo_dir} incompativeis",
+                    operador,
+                )
+        return tipo
+
+    def _te_fator(self) -> str:
+        token = self._te_adv()
+        if token.tipo == TokenType.NUM:
+            return "float" if "." in token.valor else "int"
+        if token.tipo == TokenType.LPAREN:
+            tipo = self._te_expr()
+            if self._te_peek() is not None and self._te_peek().tipo == TokenType.RPAREN:
+                self._te_adv()
+            return tipo
+        if token.tipo == TokenType.ID:
+            if self._te_peek() is not None and self._te_peek().tipo == TokenType.LPAREN:
+                self._te_adv()  # consome '('
+                if self._te_peek() is not None and self._te_peek().tipo != TokenType.RPAREN:
+                    self._te_expr()
+                    while self._te_peek() is not None and self._te_peek().tipo == TokenType.COMMA:
+                        self._te_adv()
+                        self._te_expr()
+                if self._te_peek() is not None and self._te_peek().tipo == TokenType.RPAREN:
+                    self._te_adv()  # consome ')'
+                simbolo = self.escopos[0].get(token.valor)
+                return simbolo.tipo if simbolo is not None else "int"
+            simbolo = self._buscar(token.valor)
+            return simbolo.tipo if simbolo is not None else "int"
+        return "int"
+
     def programa(self) -> list[PassoSintatico]:
         pilha: list[TokenType | str] = [TokenType.EOF, "PROGRAM"]
         passo = 1
@@ -647,12 +905,26 @@ class Parser:
             topo = pilha[-1]
             tok = self.atual
 
+            if isinstance(topo, str) and topo.startswith("@"):
+                self._registrar(passo, pilha, tok, f"Acao semantica {topo}")
+                pilha.pop()
+                self._executar_acao(topo)
+                passo += 1
+                continue
+
             if isinstance(topo, TokenType):
                 if topo != tok.tipo:
                     raise ErroSintatico(self._erro_terminal(topo, tok))
                 self._registrar(passo, pilha, tok, f"Consome {TOKEN_TEXT[topo]}")
                 pilha.pop()
+                self.consumidos.append(tok)
                 self.pos += 1
+                if (
+                    topo == TokenType.ASSIGN
+                    and self.pendentes_atrib
+                    and self.pendentes_atrib[-1]["ini"] is None
+                ):
+                    self.pendentes_atrib[-1]["ini"] = self.pos
                 passo += 1
                 continue
 
@@ -1142,6 +1414,16 @@ REQUISITOS_PDF = [
         "Erros semanticos devem apontar o erro e a linha.",
         "Erros de uso antes de declaracao, redeclaracao, chamada e tipo incluem a linha no diagnostico.",
     ],
+    [
+        "AcoesSemantico.pdf",
+        "Pelo menos 3 acoes semanticas implementadas junto ao analisador sintatico.",
+        "Parser LL(1) executa marcadores @decl_*, @usa_* e @checa_atrib durante o reconhecimento.",
+    ],
+    [
+        "Enunciado E5",
+        "Mostrar a tabela de simbolos a cada modificacao.",
+        "Cada insercao gera um snapshot exibido na secao 'Tabela de simbolos a cada modificacao'.",
+    ],
 ]
 
 
@@ -1161,10 +1443,22 @@ def compilar_codigo(codigo: str, origem: str = "entrada direta") -> ResultadoCom
     try:
         parser = Parser(resultado.tokens)
         resultado.passos_sintaticos = parser.programa()
+        resultado.snapshots_tabela = parser.snapshots
         resultado.fase = "sintatica"
     except ErroSintatico as erro:
+        resultado.passos_sintaticos = parser.passos
+        resultado.snapshots_tabela = parser.snapshots
         resultado.diagnostico = str(erro)
         resultado.fase = "sintatica"
+        return resultado
+    except ErroSemantico as erro:
+        # Erro detectado pelas acoes semanticas executadas junto ao parser.
+        resultado.passos_sintaticos = parser.passos
+        resultado.snapshots_tabela = parser.snapshots
+        resultado.simbolos = parser.simbolos
+        resultado.eventos_semanticos = parser.eventos_acoes
+        resultado.diagnostico = str(erro)
+        resultado.fase = "semantica"
         return resultado
 
     try:
@@ -1319,6 +1613,22 @@ def linhas_eventos(eventos: list[EventoSemantico]) -> list[list[str]]:
         ]
         for e in eventos
     ]
+
+
+def html_snapshots(snapshots: list[dict]) -> str:
+    if not snapshots:
+        return "<p>Nenhuma modificacao registrada na tabela de simbolos.</p>"
+
+    blocos = []
+    for indice, snap in enumerate(snapshots, start=1):
+        linha = "" if snap.get("linha") is None else f" (linha {snap['linha']})"
+        titulo = f"Passo {indice}: {html_escape(snap['rotulo'])}{linha}"
+        tabela = html_tabela(
+            ["Nome", "Categoria", "Tipo", "Nivel", "Escopo", "Linha"],
+            snap["linhas"],
+        )
+        blocos.append(f"<h3 class=\"snap-title\">{titulo}</h3>{tabela}")
+    return "".join(blocos)
 
 
 def gerar_relatorio_html(resultado: ResultadoCompilacao, caminho: Path | None = None) -> Path:
@@ -1505,6 +1815,7 @@ def gerar_relatorio_html(resultado: ResultadoCompilacao, caminho: Path | None = 
     td {{ font-family: Consolas, "Courier New", monospace; }}
     tr:last-child td {{ border-bottom: 0; }}
     .requirements td:last-child {{ background: var(--soft-blue); }}
+    .snap-title {{ margin: 14px 0 6px; font-size: .98rem; color: var(--accent); }}
     @media (max-width: 900px) {{
       .hero, .layout, .metrics {{ grid-template-columns: 1fr; }}
       .badge {{ width: 100%; }}
@@ -1558,6 +1869,11 @@ def gerar_relatorio_html(resultado: ResultadoCompilacao, caminho: Path | None = 
           {html_tabela(["#", "Etapa", "Detalhe", "Linha", "Status"], linhas_eventos(resultado.eventos_semanticos))}
         </section>
       </div>
+    </section>
+    <section class="panel">
+      <h2>Tabela de simbolos a cada modificacao (acoes junto ao parser)</h2>
+      <p>Cada bloco mostra o estado completo da tabela imediatamente apos uma insercao feita por uma acao semantica durante a analise sintatica.</p>
+      {html_snapshots(resultado.snapshots_tabela)}
     </section>
     <section class="panel">
       <h2>Execucao sintatica tabular</h2>
